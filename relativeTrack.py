@@ -34,8 +34,8 @@ startTime = datetime.now()
 """
 TO DO
 %%%%%
-Can't track accurately - detect at each time, joyplots at each time
- of distances from object
+Move track and no track into functions, tidy up
+Save distances from object per image
 %%%%%%%%%%%%
 - separate two classes of particle
 - extract parameter e.g. velocity
@@ -54,6 +54,7 @@ class var:
     maxSubnet = 80  # default 30, increase to allow larger subnetworks (slow)
     plot = True
     savecsv = True
+    cellTrack = False
     mic_per_pix = 0.542
     s_per_frame = 0.00013889
 
@@ -68,79 +69,86 @@ imDir = tkinter.filedialog.askdirectory(title='Select image directory')
 plt.close('all')
 os.chdir(imDir)
 
-if var.savecsv:
-    # initialise variables
-    c1Files = []
-    magRatioMean = np.array([])
-    magDiffMean = np.array([])
-    meanAngBetween = ([])
-    objCentresX = np.array([])
-    objCentresY = np.array([])
-    cellNumbers = np.array([])
-    fit_x2 = np.array([])
-    fit_x = np.array([])
-    fit_c = np.array([])
+if var.cellTrack:
+    if var.savecsv:
+        # initialise variables
+        c1Files = []
+        magRatioMean = np.array([])
+        magDiffMean = np.array([])
+        meanAngBetween = ([])
+        objCentresX = np.array([])
+        objCentresY = np.array([])
+        cellNumbers = np.array([])
+        fit_x2 = np.array([])
+        fit_x = np.array([])
+        fit_c = np.array([])
 
-allFiles = os.listdir('.')
-for file in allFiles:
-    if file.endswith("C1.tif"):
-        print('Analysing file: ', file)
+    allFiles = os.listdir('.')
+    for file in allFiles:
+        if file.endswith("C1.tif"):
+            print('Analysing file: ', file)
 
-        tptm = tctf.track_plot(file, var)
-        tp = tptm[0]
-        tm = tptm[1]
+            tptm = tctf.track_plot(file, var)
+            tp = tptm[0]
+            tm = tptm[1]
 
-        # Parse and analyse
-        startXs, endXs, startYs, endYs = tctf.parse_tracking(tm)
-        xDiff = endXs-startXs
-        yDiff = endYs-startYs
-        magDiff = abs(xDiff * yDiff)  # magnitude of change
+            # Parse and analyse
+            startXs, endXs, startYs, endYs = tctf.parse_tracking(tm)
+            xDiff = endXs-startXs
+            yDiff = endYs-startYs
+            magDiff = abs(xDiff * yDiff)  # magnitude of change
 
-        # get object centre
-        objCent = tctf.obj_cent(file, var.plot)
+            # get object centre
+            objCent = tctf.obj_cent(file, var.plot)
 
-        # get "ideal" movement vec (if particles moved directly to object)
-        numCells = magDiff.size
+            # get "ideal" movement vec (if particles moved directly to object)
+            numCells = magDiff.size
 
-        # check X & Y wrt row/column
-        magDiffobj, anglesBetween = tctf.compareRealIdealPaths(
-                objCent[1], objCent[0], startXs,
-                startYs, xDiff, yDiff, numCells)
+            # check X & Y wrt row/column
+            magDiffobj, anglesBetween = tctf.compareRealIdealPaths(
+                    objCent[1], objCent[0], startXs,
+                    startYs, xDiff, yDiff, numCells)
 
-        magRatio = magDiff / magDiffobj
+            magRatio = magDiff / magDiffobj
 
-        msdFitCoeff = tctf.msd(tm, var.mic_per_pix,
-                               var.s_per_frame, var.plot)
+            msdFitCoeff = tctf.msd(tm, var.mic_per_pix,
+                                   var.s_per_frame, var.plot)
 
-        print(numCells, 'particles analysed')
+            print(numCells, 'particles analysed')
 
-        if var.savecsv:
-            # append variables
-            c1Files.append(file)
-            magDiffMean = np.append(magDiffMean, np.mean(magDiff))
-            magRatioMean = np.append(magRatioMean, np.mean(magRatio))
-            meanAngBetween = np.append(meanAngBetween, np.mean(anglesBetween))
-            objCentresX = np.append(objCentresX, objCent[1])
-            objCentresY = np.append(objCentresY, objCent[0])
-            cellNumbers = np.append(cellNumbers, numCells)
-            fit_x2 = np.append(fit_x2, msdFitCoeff[0])
-            fit_x = np.append(fit_x, msdFitCoeff[1])
-            fit_c = np.append(fit_c, msdFitCoeff[2])
+            if var.savecsv:
+                # append variables
+                c1Files.append(file)
+                magDiffMean = np.append(magDiffMean, np.mean(magDiff))
+                magRatioMean = np.append(magRatioMean, np.mean(magRatio))
+                meanAngBetween = np.append(meanAngBetween,
+                                           np.mean(anglesBetween))
+                objCentresX = np.append(objCentresX, objCent[1])
+                objCentresY = np.append(objCentresY, objCent[0])
+                cellNumbers = np.append(cellNumbers, numCells)
+                fit_x2 = np.append(fit_x2, msdFitCoeff[0])
+                fit_x = np.append(fit_x, msdFitCoeff[1])
+                fit_c = np.append(fit_c, msdFitCoeff[2])
 
-if var.savecsv:
-    resultsFile = "Results_" + timestamp + ".csv"
-    filenames = {'Filenames': c1Files}
-    df_results = pd.DataFrame(data=filenames)
-    df_results['Mean displacement'] = magDiffMean
-    df_results['Displacement / "ideal"'] = magRatioMean
-    df_results['Mean angles wrt to "ideal"'] = meanAngBetween
-    df_results['Object x coordinate'] = objCentresX
-    df_results['Object y coordinate'] = objCentresY
-    df_results['Number of cells'] = cellNumbers
-    df_results['Polynomial fit (x^2 term)'] = fit_x2
-    df_results['Polynomial fit (x term)'] = fit_x
-    df_results['Polynomial fit (c term)'] = fit_c
+    if var.savecsv:
+        resultsFile = "Results_" + timestamp + ".csv"
+        filenames = {'Filenames': c1Files}
+        df_results = pd.DataFrame(data=filenames)
+        df_results['Mean displacement'] = magDiffMean
+        df_results['Displacement / "ideal"'] = magRatioMean
+        df_results['Mean angles wrt to "ideal"'] = meanAngBetween
+        df_results['Object x coordinate'] = objCentresX
+        df_results['Object y coordinate'] = objCentresY
+        df_results['Number of cells'] = cellNumbers
+        df_results['Polynomial fit (x^2 term)'] = fit_x2
+        df_results['Polynomial fit (x term)'] = fit_x
+        df_results['Polynomial fit (c term)'] = fit_c
 
-    df_results.to_csv(resultsFile, encoding='utf-8', index=False)
+        df_results.to_csv(resultsFile, encoding='utf-8', index=False)
+
+if not var.cellTrack:
+    objCent = tctf.obj_cent(file, var.plot)
+    cellsF = tctf.cell_detect(file, var)
+    celldf = tctf.cellDist(cellsF, objCent, var.plot)
 
 print('Total time taken: ', datetime.now() - startTime)
