@@ -189,3 +189,31 @@ def msd(tm, mic_per_pix, s_per_frame, plot):
         ax = plt.gca()
 
     return fitCoeff
+
+
+def cell_detect(file, var):
+    # http://soft-matter.github.io/trackpy/v0.3.2/tutorial/walkthrough.html
+    import matplotlib as mpl
+    import numpy as np
+    import pims
+    import trackpy as tp
+
+    # load, run object detection and track (then clean up)
+    frames = pims.TiffStack(file, as_grey=True)  # load
+
+    f = tp.batch(frames, var.radius, minmass=var.minFluroMass, engine='numba',
+                 max_iterations=1, characterize=False)  # object detect
+
+    f = f.drop(f[f.mass > var.maxFluroMass].index)  # remove brightest objects
+
+    if var.plot:
+        # Tweak styles
+        FigDims = np.multiply(0.01, frames[0].shape)
+        mpl.rc('figure',  figsize=(FigDims[1].astype(int),
+                                   FigDims[0].astype(int)))
+        mpl.rc('image', cmap='gray')
+
+    return f
+
+
+
