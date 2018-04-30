@@ -146,9 +146,11 @@ if var.cellTrack:
 
         df_results.to_csv(resultsFile, encoding='utf-8', index=False)
 
-if not var.cellTrack:
-    objCent = tctf.obj_cent(file, var.plot)
-    cellsF = tctf.cell_detect(file, var)
-    celldf = tctf.cellDist(cellsF, objCent, var.plot)
+allFiles = os.listdir('.')
+for file in allFiles:
+    if not var.cellTrack:
+        objCent = tctf.obj_cent(file, var.plot)
+        cellsF = tctf.cell_detect(file, var)
+        celldf = tctf.cellDist(cellsF, objCent, var.plot)
 
 print('Total time taken: ', datetime.now() - startTime)
