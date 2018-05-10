@@ -19,15 +19,26 @@ CALCULATES:
     Mean angles wrt to "ideal" - as above (angle in radians)
     Object centre - calculated intensity weighted centre of mass
     Number of cells
+
+REQUIRES:
+    matplotlib
+    numpy
+    pandas
+    tk
+    trackpy (0.3.3) (& numba)
+    skimage
+    seaborn
 """
 import matplotlib.pyplot as plt
-import relativeTrackFuncs as tctf
 import os
 from datetime import datetime
 import numpy as np
 import pandas as pd
 import tkinter
 import tkinter.filedialog
+
+import tools.tracking as tctf
+import tools.detection as dt
 
 startTime = datetime.now()
 
@@ -42,7 +53,6 @@ Save distances from object per image
 - assess motion as a function of distance from object
 """
 
-
 # define variables
 class var:
     radius = 25  # approx radius (must be odd)
@@ -54,7 +64,8 @@ class var:
     maxSubnet = 80  # default 30, increase to allow larger subnetworks (slow)
     plot = True
     savecsv = True
-    cellTrack = False
+    cellTrack = True
+    staticAnalysis = False  # analyse cells at each t individually
     mic_per_pix = 0.542
     s_per_frame = 0.00013889
 
@@ -99,7 +110,7 @@ if var.cellTrack:
             magDiff = abs(xDiff * yDiff)  # magnitude of change
 
             # get object centre
-            objCent = tctf.obj_cent(file, var.plot)
+            objCent = dt.obj_cent(file, var.plot)
 
             # get "ideal" movement vec (if particles moved directly to object)
             numCells = magDiff.size
@@ -146,11 +157,11 @@ if var.cellTrack:
 
         df_results.to_csv(resultsFile, encoding='utf-8', index=False)
 
-allFiles = os.listdir('.')
-for file in allFiles:
-    if not var.cellTrack:
-        objCent = tctf.obj_cent(file, var.plot)
-        cellsF = tctf.cell_detect(file, var)
+if var.staticAnalysis:
+    allFiles = os.listdir('.')
+    for file in allFiles:
+        objCent = dt.obj_cent(file, var.plot)
+        cellsF = dt.cell_detect(file, var)
         celldf = tctf.cellDist(cellsF, objCent, var.plot)
 
 print('Total time taken: ', datetime.now() - startTime)
