@@ -67,9 +67,8 @@ class var:
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
 
-
 tl.chooseDir()
-#
+
 if var.cellTrack:
     trackRun(var)
 
