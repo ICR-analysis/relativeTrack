@@ -13,7 +13,7 @@ import trackpy as tp
 import pims
 
 
-def obj_cent(file, plot):
+def obj_cent_single(file, plot):
     # takes the C1 file, and loads the C0 file
     # finds the intensity weighted centroid
     # maybe plots
@@ -58,4 +58,3 @@ def cell_detect(file, var):
         mpl.rc('image', cmap='gray')
 
     return f
-

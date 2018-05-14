@@ -62,6 +62,8 @@ class var:
     savecsv = False
     cellTrack = False
     staticAnalysis = True  # analyse cells at each t individually
+    cutFarCells = False  # dont measure cells far from object - static analysis
+    staticSearchRad = 500 #  Radius to analyse for static analysis
     mic_per_pix = 0.542
     s_per_frame = 0.00013889
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")

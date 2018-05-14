@@ -42,7 +42,7 @@ def trackRun(var):
             magDiff = abs(xDiff * yDiff)  # magnitude of change
     
             # get object centre
-            objCent = dt.obj_cent(file, var.plot)
+            objCent = dt.obj_cent_single(file, var.plot)
     
             # get "ideal" movement vec (if particles moved directly to object)
             numCells = magDiff.size
