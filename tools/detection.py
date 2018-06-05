@@ -57,4 +57,8 @@ def cell_detect(file, var):
                                    FigDims[0].astype(int)))
         mpl.rc('image', cmap='gray')
 
+        # plot final particles chosen, and the trajectories
+        plt.figure()
+        tp.annotate(f, frames[0])
+        plt.title('Particles included in analysis (at t=0)')
     return f

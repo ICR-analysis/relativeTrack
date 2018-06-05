@@ -41,7 +41,6 @@ startTime = datetime.now()
 """
 TO DO
 %%%%%
-Move track and no track into functions, tidy up
 Save distances from object per image
 %%%%%%%%%%%%
 - separate two classes of particle
@@ -49,11 +48,12 @@ Save distances from object per image
 - assess motion as a function of distance from object
 """
 
+
 # define variables
 class var:
     radius = 25  # approx radius (must be odd)
-    minFluroMass = 300   # minimum total fluorescence of a single object
-    maxFluroMass = 100000  # maximum total fluorescence of a single object
+    minFluroMass = 2000  # minimum total fluorescence of a single object
+    maxFluroMass = 5000  # maximum total fluorescence of a single object
     maxMove = 5  # largest pixel movement in a single frame
     maxGap = 4  # biggest gap to be closed
     minT = 30  # how many timepoints must a track last
@@ -62,8 +62,8 @@ class var:
     savecsv = False
     cellTrack = False
     staticAnalysis = True  # analyse cells at each t individually
-    cutFarCells = False  # dont measure cells far from object - static analysis
-    staticSearchRad = 500 #  Radius to analyse for static analysis
+    cutFarCells = True  # dont measure cells far from object - static analysis
+    staticSearchRad = 500  #  Radius to analyse for static analysis
     mic_per_pix = 0.542
     s_per_frame = 0.00013889
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -76,6 +76,6 @@ if var.cellTrack:
 
 
 if var.staticAnalysis:
-    noTrackRun(var)     
+    noTrackRun(var)
 
 print('Total time taken: ', datetime.now() - startTime)
