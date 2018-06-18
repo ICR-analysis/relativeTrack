@@ -65,6 +65,9 @@ def cellDist(celldf, objCent, plot, cutFarCells, searchRad):
     return celldf
 
 
+# def cells_in_object(cellsdf, obj_mask):
+
+
 def noTrackRun(var, opt):
     print('Running static analysis')
     allFiles = os.listdir('.')
@@ -72,8 +75,9 @@ def noTrackRun(var, opt):
         if file.endswith("C1.tif"):
             print('Analysing file: ', file)
             objCent = dt.obj_cent_single(file, opt.plot)
-            cellsF = dt.cell_detect(file, var, opt)
-            celldf = cellDist(cellsF, objCent, opt.plot,
+            cellsdf = dt.cell_detect(file, var, opt)
+            celldf = cellDist(cellsdf, objCent, opt.plot,
                               opt.cutFarCells, var.staticSearchRad)
         
-
+            im_thresh = dt.obj_seg(file, var, opt)
+            a=1

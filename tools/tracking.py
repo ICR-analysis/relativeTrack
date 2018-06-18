@@ -10,7 +10,7 @@ import matplotlib as mpl
 from matplotlib import pylab
 import trackpy as tp
 import pims
-    
+
 
 def unit_vector(vector):
     """ Returns the unit vector of the vector.  """
@@ -61,8 +61,8 @@ def track_plot(file, var, opt):
         print('Plotting')
         # Tweak styles
         FigDims = np.multiply(0.01, frames[0].shape)
-        mpl.rc('figure',  figsize=(FigDims[1].astype(int),
-                                   FigDims[0].astype(int)))
+        mpl.rc('figure', figsize=(FigDims[1].astype(int),
+                                  FigDims[0].astype(int)))
         mpl.rc('image', cmap='gray')
 
         # plot final particles chosen, and the trajectories
@@ -114,14 +114,13 @@ def parse_tracking(tm):
 
 def compareRealIdealPaths(objXCorr, objYCorr,
                           startXs, startYs, xDiff, yDiff, numCells):
-
     print('Comparing real paths to "ideal"')
-    xVecToObj = objXCorr-startXs
-    yVecToObj = objYCorr-startYs
+    xVecToObj = objXCorr - startXs
+    yVecToObj = objYCorr - startYs
     magDiffObj = abs(xVecToObj * yVecToObj)  # magnitude of change
 
     anglesBetween = np.array([])
-    for i in range(0, numCells-1):
+    for i in range(0, numCells - 1):
         realVec = (xDiff[i], yDiff[i])
         idealVec = (xVecToObj[i], yVecToObj[i])
         angleBetween = angle_between(realVec, idealVec)

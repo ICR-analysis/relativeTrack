@@ -11,7 +11,9 @@ import skimage.io
 import skimage.measure
 import trackpy as tp
 import pims
-
+from scipy import ndimage
+import skimage.filters
+import tools.plots as plots
 
 def obj_cent_single(file, plot):
     print('Finding object centre')
@@ -41,6 +43,45 @@ def obj_cent_single(file, plot):
     return objCent
 
 
+def obj_seg(file, var, opt):
+    print('Segmenting object')
+
+    objim_file = file.replace("C1.tif", "C0.tif")
+    im = skimage.io.imread(objim_file)
+    im_smooth = np.zeros(im.shape)
+    im_otsu = var.obj_thresh_adj * skimage.filters.threshold_otsu(im)
+
+    if var.frames_keep is 0:
+        max_t = len(im)
+    else:
+        max_t = var.frames_keep
+
+    for t in range(0, max_t):
+        im_smooth[t] = ndimage.filters.gaussian_filter(
+            im[t], (var.obj_thresh_smooth, var.obj_thresh_smooth))
+
+    im_thresh = im_smooth > im_otsu
+
+    if opt.plot:
+        plots.rand_plot_compare(im, im_thresh, num_cols=5, plotsize=3,
+                                 title='Object segmentation', min_val=None,
+                                max_val=im_otsu * 2)
+
+    return im_thresh
+#
+# file = 'E:\\Adam\\MariaTrack\\analyse-2018-06-05\R1029_1\\' \
+#        'Capture 2 - D4_1_29_IFNg_CEA.Project Maximum Z_' \
+#        'XY1526059416_Z0_T00_C1.tif'
+#
+# class var:
+#      obj_thresh_adj = 1
+#      obj_thresh_smooth = 20
+#
+#
+# obj_seg(file, True)
+# plt.show(block=True)
+
+
 def cell_detect(file, var, opt):
     print('Detecting cells')
     # http://soft-matter.github.io/trackpy/v0.3.2/tutorial/walkthrough.html
@@ -48,12 +89,21 @@ def cell_detect(file, var, opt):
     # load, run object detection and track (then clean up)
     frames = pims.TiffStack(file, as_grey=True)  # load
 
-    f = tp.batch(frames, var.radius, minmass=var.minFluroMass, engine='numba',
+    # only analyse n frames
+    if var.frames_keep is not 0:
+        frames = frames[0:var.frames_keep]
+
+    f = tp.batch(frames, var.radius, minmass=var.minFluroMass,
+                 separation=var.separation, engine='numba',
                  max_iterations=1, characterize=False)  # object detect
 
     f = f.drop(f[f.mass > var.maxFluroMass].index)  # remove brightest objects
 
     if opt.plot:
+        annotate_args = {
+                        "vmin" : 0,
+                        "vmax" : 200
+                        }
         # Tweak styles
         plt.ion()
         plt.show()
@@ -62,10 +112,12 @@ def cell_detect(file, var, opt):
                                    FigDims[0].astype(int)))
         mpl.rc('image', cmap='gray')
 
-        # plot final particles chosen, and the trajectories
+        # plot final particles chosen
         plt.figure()
-        tp.annotate(f, frames[0])
-        plt.title('Particles included in analysis (at t=0)')
+        tp.annotate(f[f.frame == var.frame_plot], frames[var.frame_plot],
+                    imshow_style=annotate_args)
+        plt.title('Particles included in analysis'
+                  '(at t='+str(var.frame_plot)+')')
         # plt.show(block=False)
         plt.draw()
         plt.pause(0.001)
