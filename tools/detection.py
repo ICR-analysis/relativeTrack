@@ -48,7 +48,7 @@ def obj_seg(file, var, opt):
 
     objim_file = file.replace("C1.tif", "C0.tif")
     im = skimage.io.imread(objim_file)
-    im_smooth = np.zeros(im.shape)
+    im_smooth = np.zeros((var.frames_keep, im.shape[1], im.shape[2]))
     im_otsu = var.obj_thresh_adj * skimage.filters.threshold_otsu(im)
 
     if var.frames_keep is 0:
@@ -63,7 +63,7 @@ def obj_seg(file, var, opt):
     im_thresh = im_smooth > im_otsu
 
     if opt.plot:
-        plots.rand_plot_compare(im, im_thresh, num_cols=5, plotsize=3,
+        plots.rand_plot_compare(im[0:var.frames_keep], im_thresh, num_cols=5, plotsize=3,
                                  title='Object segmentation', min_val=None,
                                 max_val=im_otsu * 2)
 
