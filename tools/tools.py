@@ -13,12 +13,7 @@ def simpleplot(img, title, plotsize):  # just to tidy up plotting
     plt.figure(figsize=(plotsize, plotsize))
     plt.imshow(img, cmap="Greys_r")
     plt.title(title)
+    plt.show(block=False)
 
-def chooseDir():
-    # choose a directory and move into it
-    root = tkinter.Tk()
-    root.withdraw()
-    imDir = tkinter.filedialog.askdirectory(title='Select image directory')
-    plt.close('all')
-    os.chdir(imDir)
-    
+
+

@@ -14,6 +14,7 @@ import pims
 
 
 def obj_cent_single(file, plot):
+    print('Finding object centre')
     # takes the C1 file, and loads the C0 file
     # finds the intensity weighted centroid
     # maybe plots
@@ -29,17 +30,19 @@ def obj_cent_single(file, plot):
             agnosticMask, sumProj)[0]['weighted_centroid']
 
     if plot:
+        print('Plotting')
         fig, ax = plt.subplots(1)
         ax.set_aspect('equal')
         ax.imshow(sumProj)
         circ = mpl.patches.Circle((objCent[1], objCent[0]), 50)
         ax.add_patch(circ)
-        plt.show()
+        plt.show(block=False)
 
     return objCent
 
 
-def cell_detect(file, var):
+def cell_detect(file, var, opt):
+    print('Detecting cells')
     # http://soft-matter.github.io/trackpy/v0.3.2/tutorial/walkthrough.html
 
     # load, run object detection and track (then clean up)
@@ -50,8 +53,10 @@ def cell_detect(file, var):
 
     f = f.drop(f[f.mass > var.maxFluroMass].index)  # remove brightest objects
 
-    if var.plot:
+    if opt.plot:
         # Tweak styles
+        plt.ion()
+        plt.show()
         FigDims = np.multiply(0.01, frames[0].shape)
         mpl.rc('figure',  figsize=(FigDims[1].astype(int),
                                    FigDims[0].astype(int)))
@@ -61,4 +66,9 @@ def cell_detect(file, var):
         plt.figure()
         tp.annotate(f, frames[0])
         plt.title('Particles included in analysis (at t=0)')
+        # plt.show(block=False)
+        plt.draw()
+        plt.pause(0.001)
+        # plt.show(block=False)
+
     return f

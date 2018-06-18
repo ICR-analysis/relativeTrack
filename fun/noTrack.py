@@ -15,6 +15,7 @@ def cellDist(celldf, objCent, plot, cutFarCells, searchRad):
 # takes a dataframe with cell positions, and an object position
 # finds distance from object, and plots for each time frame
 
+    print('Calculating distances from object')
     # calculate distance from object
     celldf['xdiff'] = abs(celldf['x'] - objCent[1])
     celldf['ydiff'] = abs(celldf['y'] - objCent[0])
@@ -27,6 +28,7 @@ def cellDist(celldf, objCent, plot, cutFarCells, searchRad):
         celldf = celldf[celldf['objDist'] < searchRad]
     
     if plot:
+        print('Plotting')
         sns.set(style="white", rc={"axes.facecolor": (0, 0, 0, 0)})
     
         plotmax = max(celldf['objDist'])
@@ -57,17 +59,21 @@ def cellDist(celldf, objCent, plot, cutFarCells, searchRad):
         g.set(xticks=[])
         g.set_xlabels('Distance to object')
         g.despine(bottom=True, left=True)
-    
+
+        plt.show(block=False)
+
     return celldf
 
-def noTrackRun(var):
+
+def noTrackRun(var, opt):
+    print('Running static analysis')
     allFiles = os.listdir('.')
     for file in allFiles:
         if file.endswith("C1.tif"):
             print('Analysing file: ', file)
-            objCent = dt.obj_cent_single(file, var.plot)
-            cellsF = dt.cell_detect(file, var)
-            celldf = cellDist(cellsF, objCent, var.plot,
-                              var.cutFarCells, var.staticSearchRad)
+            objCent = dt.obj_cent_single(file, opt.plot)
+            cellsF = dt.cell_detect(file, var, opt)
+            celldf = cellDist(cellsF, objCent, opt.plot,
+                              opt.cutFarCells, var.staticSearchRad)
         
 

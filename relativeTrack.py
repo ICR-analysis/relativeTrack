@@ -28,54 +28,60 @@ REQUIRES:
     trackpy (0.3.3) (& numba)
     skimage
     seaborn
+    pims
 """
-from datetime import datetime
 
+# TODO: Save distances from object per image
+# TODO: separate two classes of particle
+# TODO: extract parameter e.g. velocity
+# TODO: assess motion as a function of distance from object
+# TODO: GUI options
+# TODO: make parallel with ipyparallel?
+
+from datetime import datetime
 import tools.tools as tl
 from fun.cellTrack import trackRun
 from fun.noTrack import noTrackRun
+import matplotlib.pyplot as plt
+import tools.GUI as GUI
 
 
-startTime = datetime.now()
-
-"""
-TO DO
-%%%%%
-Save distances from object per image
-%%%%%%%%%%%%
-- separate two classes of particle
-- extract parameter e.g. velocity
-- assess motion as a function of distance from object
-"""
-
-
+plt.close('all')
 # define variables
 class var:
     radius = 25  # approx radius (must be odd)
-    minFluroMass = 2000  # minimum total fluorescence of a single object
+    minFluroMass = 3000  # minimum total fluorescence of a single object
     maxFluroMass = 5000  # maximum total fluorescence of a single object
     maxMove = 5  # largest pixel movement in a single frame
     maxGap = 4  # biggest gap to be closed
     minT = 30  # how many timepoints must a track last
     maxSubnet = 80  # default 30, increase to allow larger subnetworks (slow)
-    plot = True
-    savecsv = False
-    cellTrack = False
-    staticAnalysis = True  # analyse cells at each t individually
-    cutFarCells = True  # dont measure cells far from object - static analysis
     staticSearchRad = 500  #  Radius to analyse for static analysis
     mic_per_pix = 0.542
     s_per_frame = 0.00013889
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
+# class opt:
+#     plot = True
+#     savecsv = False
+#     cellTrack = False
+#     staticAnalysis = True  # analyse cells at each t individually
+#     cutFarCells = True  # dont measure cells far from object - static analysis
 
-tl.chooseDir()
 
-if var.cellTrack:
-    trackRun(var)
+opt = GUI.get_opt_radio()
+opt.cutFarCells = True
+startTime = datetime.now()
+if not opt.staticAnalysis and not opt.cellTrack:
+    print('No analysis selected, aborting.')
+else:
+    GUI.chooseDir()
 
+    if opt.cellTrack:
+        trackRun(var, opt)
 
-if var.staticAnalysis:
-    noTrackRun(var)
+    if opt.staticAnalysis:
+        noTrackRun(var, opt)
 
-print('Total time taken: ', datetime.now() - startTime)
+    print('Total time taken: ', datetime.now() - startTime)
+    plt.show(block=True)

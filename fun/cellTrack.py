@@ -12,8 +12,10 @@ import pandas as pd
 import tools.tracking as tctf
 import tools.detection as dt
 
-def trackRun(var):
-    if var.savecsv:
+def trackRun(var, opt):
+    print('Running tracking analysis')
+
+    if opt.savecsv:
         # initialise variables
         c1Files = []
         magRatioMean = np.array([])
@@ -31,7 +33,7 @@ def trackRun(var):
         if file.endswith("C1.tif"):
             print('Analysing file: ', file)
 
-            tptm = tctf.track_plot(file, var)
+            tptm = tctf.track_plot(file, var, opt)
             tp = tptm[0]
             tm = tptm[1]
 
@@ -42,7 +44,7 @@ def trackRun(var):
             magDiff = abs(xDiff * yDiff)  # magnitude of change
 
             # get object centre
-            objCent = dt.obj_cent_single(file, var.plot)
+            objCent = dt.obj_cent_single(file, opt.plot)
 
             # get "ideal" movement vec (if particles moved directly to object)
             numCells = magDiff.size
@@ -55,11 +57,11 @@ def trackRun(var):
             magRatio = magDiff / magDiffobj
 
             msdFitCoeff = tctf.msd(tm, var.mic_per_pix,
-                                   var.s_per_frame, var.plot)
+                                   var.s_per_frame, opt.plot)
 
             print(numCells, 'particles analysed')
 
-            if var.savecsv:
+            if opt.savecsv:
                 # append variables
                 c1Files.append(file)
                 magDiffMean = np.append(magDiffMean, np.mean(magDiff))
@@ -73,7 +75,8 @@ def trackRun(var):
                 fit_x = np.append(fit_x, msdFitCoeff[1])
                 fit_c = np.append(fit_c, msdFitCoeff[2])
 
-    if var.savecsv:
+    if opt.savecsv:
+        print('Saving results')
         resultsFile = "Results_" + var.timestamp + ".csv"
         filenames = {'Filenames': c1Files}
         df_results = pd.DataFrame(data=filenames)

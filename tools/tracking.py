@@ -18,6 +18,7 @@ def unit_vector(vector):
 
 
 def angle_between(v1, v2):
+    print('Finding angle between vectors')
     # from https://stackoverflow.com/questions/2827393/
     # angles-between-two-n-dimensional-vectors-in-python/13849249#13849249
     """ Returns the angle in radians between vectors 'v1' and 'v2'::
@@ -34,7 +35,7 @@ def angle_between(v1, v2):
     return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
 
 
-def track_plot(file, var):
+def track_plot(file, var, opt):
     # http://soft-matter.github.io/trackpy/v0.3.2/tutorial/walkthrough.html
 
     tp.linking.Linker.MAX_SUB_NET_SIZE = var.maxSubnet
@@ -42,6 +43,7 @@ def track_plot(file, var):
     # load, run object detection and track (then clean up)
     frames = pims.TiffStack(file, as_grey=True)  # load
 
+    print('Detecting objects')
     f = tp.batch(frames, var.radius, minmass=var.minFluroMass, engine='numba',
                  max_iterations=1, characterize=False)  # object detect
 
@@ -50,11 +52,13 @@ def track_plot(file, var):
     t = tp.link_df(f, var.maxMove, memory=var.maxGap)  # track
     t1 = tp.filter_stubs(t, var.minT)  # only keep long tracks
 
+    print('Calculating drift')
     # measure, and remove drift
     d = tp.compute_drift(t1)
     tm = tp.subtract_drift(t1.copy(), d)
 
-    if var.plot:
+    if opt.plot:
+        print('Plotting')
         # Tweak styles
         FigDims = np.multiply(0.01, frames[0].shape)
         mpl.rc('figure',  figsize=(FigDims[1].astype(int),
@@ -65,21 +69,25 @@ def track_plot(file, var):
         plt.figure()
         tp.annotate(t1[t1['frame'] == 0], frames[0])
         plt.title('Particles included in analysis (at t=0)')
+        plt.show(block=False)
 
         plt.figure()
         tp.plot_traj(t1)
         plt.title('Raw trajectories')
+        plt.show(block=False)
 
         # plot drift-corrected trajectories
         plt.figure()
         tp.plot_traj(tm)
         plt.title('Drift-corrected trajectories')
+        plt.show(block=False)
 
     return tp, tm
 
 
 # parse out the tracking from trackpy into a simple change vector
 def parse_tracking(tm):
+    print('Calculating single motion vector')
     startXs = np.array([])
     endXs = np.array([])
     startYs = np.array([])
@@ -106,7 +114,8 @@ def parse_tracking(tm):
 
 def compareRealIdealPaths(objXCorr, objYCorr,
                           startXs, startYs, xDiff, yDiff, numCells):
-    
+
+    print('Comparing real paths to "ideal"')
     xVecToObj = objXCorr-startXs
     yVecToObj = objYCorr-startYs
     magDiffObj = abs(xVecToObj * yVecToObj)  # magnitude of change
@@ -122,6 +131,7 @@ def compareRealIdealPaths(objXCorr, objYCorr,
 
 
 def msd(tm, mic_per_pix, s_per_frame, plot):
+    print('Calculating mean square displacement')
     im = tp.imsd(tm, mic_per_pix, s_per_frame)
     em = tp.emsd(tm, mic_per_pix, s_per_frame)
 
@@ -133,6 +143,7 @@ def msd(tm, mic_per_pix, s_per_frame, plot):
     f = np.poly1d(fitCoeff)
 
     if plot:
+        print('Plotting')
         x_new = np.linspace(x[0], x[-1], 50)
         y_new = f(x_new)
         fig, ax = plt.subplots()
@@ -144,5 +155,6 @@ def msd(tm, mic_per_pix, s_per_frame, plot):
         plt.plot(x, y, 'o', x_new, y_new)
         pylab.title('Polynomial Fit')
         ax = plt.gca()
+        plt.show(block=False)
 
     return fitCoeff
