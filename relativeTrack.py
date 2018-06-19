@@ -35,15 +35,18 @@ REQUIRES:
 # TODO make parallel with ipyparallel?
 # TODO remove objects that dont move
 # TODO option to only analyse n frames
-# TODO count cells only in object
+# TODO speed up object segmentation
+
+# TODO save results
+# TODO try on different data
+
 
 from datetime import datetime
-from fun.noTrack import noTrackRun
+
 import matplotlib.pyplot as plt
+
 import tools.GUI as GUI
-from tools.detection import obj_seg
-
-
+from fun.noTrack import noTrackRun
 
 opt, var = GUI.run()
 plt.close('all')
@@ -52,25 +55,15 @@ var.obj_thresh_adj = 0.8
 var.obj_thresh_smooth = 50
 if opt.test:
     var.radius = 25  # approx radius (must be odd)
-    var.minFluroMass = 800  # minimum total fluorescence of a single object
-    var.maxFluroMass = 50000  # maximum total fluorescence of a single object
+    var.minFluroMass = 300 # minimum total fluorescence of a single object
+    var.maxFluroMass = 500000  # maximum total fluorescence of a single object
     var.staticSearchRad = 500  # Radius to analyse for static analysis
     var.frame_plot = 1
     var.frames_keep = 5  # set to 0 to run all (needs to be > 3)
 
-# file = 'E:\\Adam\\MariaTrack\\analyse-2018-06-05\R1029_1\\' \
-#        'Capture 2 - D4_1_29_IFNg_CEA.Project Maximum Z_' \
-#        'XY1526059416_Z0_T00_C1.tif'
-
-
-
-# obj_seg(file, var, opt)
-# plt.show(block=True)
-
-
 
 startTime = datetime.now()
-noTrackRun(var, opt)
+celldf, im_thresh, num_cells = noTrackRun(var, opt)
 print('Total time taken: ', datetime.now() - startTime)
 plt.show(block=True)
 

@@ -6,9 +6,13 @@ Adam Tyson | adam.tyson@icr.ac.uk | 2018-05-10
 """
 
 import os
-import tools.detection as dt
-import seaborn as sns
+
 import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+from scipy import ndimage
+
+import tools.detection as dt
 
 
 def cellDist(celldf, objCent, plot, cutFarCells, searchRad):
@@ -65,7 +69,34 @@ def cellDist(celldf, objCent, plot, cutFarCells, searchRad):
     return celldf
 
 
-# def cells_in_object(cellsdf, obj_mask):
+def cells_in_object(celldf, obj_mask, plot, plot_smooth=False):
+    print('Calculating number of cells in object')
+    num_cells = np.empty(celldf['frame'].max() + 1)
+    for t in range(0, celldf['frame'].max() + 1):
+        obj_indices = np.argwhere(obj_mask[t] == True)
+        df = celldf[celldf['frame'] == t]
+        df = df.round({'x': 0, 'y': 0})
+
+        # get number of cellhows where x and y vals fall within the object
+        cells_in_obj = df[df['x'].isin(obj_indices[:, 1]) &
+                          df['y'].isin(obj_indices[:, 0])]
+
+        num_cells[t] = len(cells_in_obj)
+
+    if plot:
+        smooth_sigma = 4
+        fig, ax = plt.subplots()
+        x = np.arange(0, len(num_cells))
+        if plot_smooth:
+            num_cells = ndimage.filters.gaussian_filter1d(
+                num_cells, smooth_sigma)
+
+        ax.plot(x, num_cells)
+        ax.set(xlabel='Time', ylabel='Number of cells')
+        ax.set_title('Number of cells in object over time')
+
+        plt.show(block=False)
+    return num_cells
 
 
 def noTrackRun(var, opt):
@@ -80,4 +111,6 @@ def noTrackRun(var, opt):
                               opt.cutFarCells, var.staticSearchRad)
         
             im_thresh = dt.obj_seg(file, var, opt)
-            a=1
+            num_cells = cells_in_object(celldf, im_thresh, opt.plot,
+                                        plot_smooth=True)
+    return celldf, im_thresh, num_cells

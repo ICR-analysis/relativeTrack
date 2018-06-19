@@ -4,16 +4,18 @@ Adam Tyson | adam.tyson@icr.ac.uk | 2018-05-10
 
 @author: Adam Tyson
 """
-import numpy as np
-import matplotlib.pyplot as plt
 import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
+import pims
+import skimage.filters
 import skimage.io
 import skimage.measure
 import trackpy as tp
-import pims
 from scipy import ndimage
-import skimage.filters
+
 import tools.plots as plots
+
 
 def obj_cent_single(file, plot):
     print('Finding object centre')
@@ -38,6 +40,8 @@ def obj_cent_single(file, plot):
         ax.imshow(sumProj)
         circ = mpl.patches.Circle((objCent[1], objCent[0]), 50)
         ax.add_patch(circ)
+        ax.set_title('Object centre')
+
         plt.show(block=False)
 
     return objCent
@@ -48,13 +52,14 @@ def obj_seg(file, var, opt):
 
     objim_file = file.replace("C1.tif", "C0.tif")
     im = skimage.io.imread(objim_file)
-    im_smooth = np.zeros((var.frames_keep, im.shape[1], im.shape[2]))
     im_otsu = var.obj_thresh_adj * skimage.filters.threshold_otsu(im)
 
     if var.frames_keep is 0:
         max_t = len(im)
     else:
         max_t = var.frames_keep
+
+    im_smooth = np.zeros((max_t, im.shape[1], im.shape[2]))
 
     for t in range(0, max_t):
         im_smooth[t] = ndimage.filters.gaussian_filter(
@@ -63,23 +68,11 @@ def obj_seg(file, var, opt):
     im_thresh = im_smooth > im_otsu
 
     if opt.plot:
-        plots.rand_plot_compare(im[0:var.frames_keep], im_thresh, num_cols=5, plotsize=3,
-                                 title='Object segmentation', min_val=None,
-                                max_val=im_otsu * 2)
+        plots.rand_plot_compare(im[0:max_t], im_thresh, num_cols=5,
+                                plotsize=3,  title='Object segmentation',
+                                min_val=None, max_val=im_otsu * 2)
 
     return im_thresh
-#
-# file = 'E:\\Adam\\MariaTrack\\analyse-2018-06-05\R1029_1\\' \
-#        'Capture 2 - D4_1_29_IFNg_CEA.Project Maximum Z_' \
-#        'XY1526059416_Z0_T00_C1.tif'
-#
-# class var:
-#      obj_thresh_adj = 1
-#      obj_thresh_smooth = 20
-#
-#
-# obj_seg(file, True)
-# plt.show(block=True)
 
 
 def cell_detect(file, var, opt):
