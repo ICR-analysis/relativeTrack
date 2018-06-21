@@ -2,10 +2,6 @@
 """
 Adam Tyson | adam.tyson@icr.ac.uk | 2018-03-05
 
-@author: Adam Tyson
-
-Implements Crocker & Grier's (1996) local nearest neighbour tracking by
-using trackpy. Requires low densities, and low movement per frame.
 
 INSTRUCTIONS:
     - In slidebook, calculate max projection, and export all files
@@ -31,24 +27,23 @@ REQUIRES:
 # TODO option to only analyse n frames
 # TODO speed up object segmentation
 
-# TODO save results
 # TODO try on different data
 
 # TODO: better viewer for cell segmentation
 # TODO: plot cells in spheroid (save as movie)
 # TODO: save cell numbers in each time pount
-#
-
+# TODO: check cell counting in object
+# TODO: option to choose which frames to plot
+# TODO: find way of removing small, but bright things
 
 from datetime import datetime
-
 import matplotlib.pyplot as plt
-
 import tools.GUI as GUI
-from fun.noTrack import noTrackRun
+import analysis.static_analysis as static_analysis
 
-opt, var = GUI.run()
+opt, var, direc = GUI.run()
 plt.close('all')
+var.frame_plot = 1
 
 if opt.test:
     var.radius = 25  # approx radius (must be odd)
@@ -60,13 +55,10 @@ if opt.test:
 
 
 startTime = datetime.now()
-# celldf, im_thresh, num_cells = noTrackRun(var, opt
-movies = noTrackRun(var, opt)
 
+movies = static_analysis.analysis_run(var, opt)
 
-
-
-
+static_analysis.all_movies(movies, opt, var, direc)
 
 print('Total time taken: ', datetime.now() - startTime)
 plt.show(block=True)

@@ -2,7 +2,6 @@
 """
 Adam Tyson | adam.tyson@icr.ac.uk | 2018-05-10
 
-@author: Adam Tyson
 """
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -14,7 +13,7 @@ import skimage.measure
 import trackpy as tp
 from scipy import ndimage
 
-import tools.plots as plots
+import tools.plot as plots
 
 
 def obj_cent_single(file, plot):
@@ -22,7 +21,6 @@ def obj_cent_single(file, plot):
     # takes the C1 file, and loads the C0 file
     # finds the intensity weighted centroid
     # maybe plots
-
 
     objim_file = file.replace("C1.tif", "C0.tif")
     objIm = skimage.io.imread(objim_file)

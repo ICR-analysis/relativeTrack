@@ -2,10 +2,7 @@
 """
 Adam Tyson | adam.tyson@icr.ac.uk | 2018-05-10
 
-@author: Adam Tyson
 """
-
-import os
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,7 +10,7 @@ import seaborn as sns
 from scipy import ndimage
 import glob
 import tools.detection as dt
-
+import tools.tools as tools
 
 def cellDist(celldf, objCent, plot, cutFarCells, searchRad):
 # takes a dataframe with cell positions, and an object position
@@ -71,7 +68,11 @@ def cellDist(celldf, objCent, plot, cutFarCells, searchRad):
 
 def cells_in_object(celldf, obj_mask, plot, plot_smooth=False):
     print('Calculating number of cells in object')
-    num_cells = np.empty(celldf['frame'].max() + 1)
+    num_cells_in_obj = np.zeros(celldf['frame'].max() + 1)
+    num_cells_total = np.zeros(celldf['frame'].max() + 1)
+    area_object = np.zeros(celldf['frame'].max() + 1)
+
+
     for t in range(0, celldf['frame'].max() + 1):
         obj_indices = np.argwhere(obj_mask[t] == True)
         df = celldf[celldf['frame'] == t]
@@ -81,26 +82,27 @@ def cells_in_object(celldf, obj_mask, plot, plot_smooth=False):
         cells_in_obj = df[df['x'].isin(obj_indices[:, 1]) &
                           df['y'].isin(obj_indices[:, 0])]
 
-        num_cells[t] = len(cells_in_obj)
+        num_cells_in_obj[t] = len(cells_in_obj)
+        num_cells_total[t] = len(df)
+        area_object[t] = obj_mask[t].sum()
 
     if plot:
         smooth_sigma = 4
         fig, ax = plt.subplots()
-        x = np.arange(0, len(num_cells))
+        x = np.arange(0, len(num_cells_in_obj))
         if plot_smooth:
             num_cells = ndimage.filters.gaussian_filter1d(
-                num_cells, smooth_sigma)
+                num_cells_in_obj, smooth_sigma)
 
         ax.plot(x, num_cells)
         ax.set(xlabel='Time', ylabel='Number of cells')
         ax.set_title('Number of cells in object over time')
 
         plt.show(block=False)
-    return num_cells
+    return num_cells_in_obj, num_cells_total, area_object
 
 
-
-def noTrackRun(var, opt):
+def analysis_run(var, opt):
     filenames = glob.glob('*C1.tif')
     movies = [Movie(file, opt, var) for file in filenames]
     return movies
@@ -116,5 +118,15 @@ class Movie:
                           opt.cutFarCells, var.staticSearchRad)
 
         im_thresh = dt.obj_seg(file, var, opt)
-        self.num_cells = cells_in_object(self.celldf, im_thresh, opt.plot,
-                                    plot_smooth=True)
+        self.num_cells_in_obj, self.num_cells_total, self.area_object =\
+            cells_in_object(self.celldf, im_thresh, opt.plot, plot_smooth=True)
+
+
+def all_movies(movies, opt, var, direc):
+    if opt.savecsv:
+        tools.save_1d_csv(movies, 'file',
+                          'num_cells_in_obj',
+                          'num_cells_total',
+                          'area_object')
+
+

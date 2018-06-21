@@ -2,7 +2,6 @@
 """
 Adam Tyson | adam.tyson@icr.ac.uk | 2018-05-10
 
-@author: Adam Tyson
 """
 import matplotlib.pyplot as plt
 from random import randint

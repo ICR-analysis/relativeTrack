@@ -2,20 +2,21 @@
 """
 Adam Tyson | adam.tyson@icr.ac.uk | 2018-05-10
 
-@author: Adam Tyson
 """
 import tkinter as tk
 import tkinter.filedialog
 import os
 from datetime import datetime
 
-def chooseDir():
+
+def choose_dir():
     print('Getting image directory')
     # choose a directory and move into it
     root = tk.Tk()
     root.withdraw()
-    imDir = tk.filedialog.askdirectory(title='Select image directory')
-    os.chdir(imDir)
+    direc = tk.filedialog.askdirectory(title='Select image directory')
+    os.chdir(direc)
+    return direc
 
 
 def get_opt_radio():
@@ -216,5 +217,5 @@ def get_var():
 def run():
     opt = get_opt_radio()
     var = get_var()
-    chooseDir()
-    return opt, var
+    direc = choose_dir()
+    return opt, var, direc
