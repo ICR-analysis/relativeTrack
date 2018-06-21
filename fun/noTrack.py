@@ -77,7 +77,7 @@ def cells_in_object(celldf, obj_mask, plot, plot_smooth=False):
         df = celldf[celldf['frame'] == t]
         df = df.round({'x': 0, 'y': 0})
 
-        # get number of cellhows where x and y vals fall within the object
+        # get number of cells where x and y vals fall within the object
         cells_in_obj = df[df['x'].isin(obj_indices[:, 1]) &
                           df['y'].isin(obj_indices[:, 0])]
 
