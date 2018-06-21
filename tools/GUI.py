@@ -147,21 +147,44 @@ def get_var():
             text3.insert(tk.END, 50000)  # default
             text3.grid(row=2, column=1)
 #
-            #  Radius to analyse for static analysis
+
             label_text4 = tk.StringVar()
-            label_text4.set("Analysis radius")
+            label_text4.set("Object threshold adjustment")
             label4 = tk.Label(textvariable=label_text4, height=4)
             label4.grid(row=3)
 
-            self.staticSearchRad = tk.StringVar()
-            text4 = tk.Entry(textvariable=self.staticSearchRad)
-            text4.insert(tk.END, 500)  # default
+            self.obj_thresh_adj = tk.StringVar()
+            text4 = tk.Entry(textvariable=self.obj_thresh_adj)
+            text4.insert(tk.END, 0.8)  # default
             text4.grid(row=3, column=1)
+#
+
+            label_text5 = tk.StringVar()
+            label_text5.set("Object thresholding smoothing")
+            label5 = tk.Label(textvariable=label_text5, height=4)
+            label5.grid(row=4)
+
+            self.obj_thresh_smooth = tk.StringVar()
+            text5 = tk.Entry(textvariable=self.obj_thresh_smooth)
+            text5.insert(tk.END, 50)  # default
+            text5.grid(row=4, column=1)
+#
+
+            #  Radius to analyse for static analysis
+            label_text6 = tk.StringVar()
+            label_text6.set("Analysis radius")
+            label6 = tk.Label(textvariable=label_text6, height=4)
+            label6.grid(row=5)
+
+            self.staticSearchRad = tk.StringVar()
+            text6 = tk.Entry(textvariable=self.staticSearchRad)
+            text6.insert(tk.END, 500)  # default
+            text6.grid(row=5, column=1)
             #
 
             # Proceed button
             name_button = tk.Button(text="Proceed", command=self.fetch_vars)
-            name_button.grid(row=4, column=1)
+            name_button.grid(row=6, column=1)
             # bind return to button
             root.bind('<Return>', (lambda e, b=name_button: b.invoke()))
 
@@ -169,6 +192,9 @@ def get_var():
             self.radius = int(round(float(self.radius.get())))
             self.minFluroMass = int(round(float(self.minFluroMass.get())))
             self.maxFluroMass = int(round(float(self.maxFluroMass.get())))
+            self.obj_thresh_adj  = float(self.obj_thresh_adj .get())
+            self.obj_thresh_smooth = int(round(float(self.obj_thresh_smooth.get())))
+
             self.staticSearchRad = int(round(float(self.staticSearchRad.get())))
 
             # force search radius to be odd (for trackpy)
@@ -182,6 +208,8 @@ def get_var():
     root.title('Choose parameters (set to 0 to disable)')
     var = VarGUI(root)
     root.mainloop()
+
+    var.separation = var.radius
     return var
 
 

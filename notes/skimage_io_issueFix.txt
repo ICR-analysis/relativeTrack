@@ -1,2 +1,0 @@
-to prevent issues with skimage.io, PIL and pillow:
-install trackpy v 0.3.3.

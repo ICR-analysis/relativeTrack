@@ -13,12 +13,6 @@ INSTRUCTIONS:
     - Run relativeTrack.py and results will be saved as .csv into the same
       directory
 
-CALCULATES:
-    Mean displacement
-    Displacement / "ideal" - compares to ideal track (straight to object)
-    Mean angles wrt to "ideal" - as above (angle in radians)
-    Object centre - calculated intensity weighted centre of mass
-    Number of cells
 
 REQUIRES:
     matplotlib
@@ -40,6 +34,11 @@ REQUIRES:
 # TODO save results
 # TODO try on different data
 
+# TODO: better viewer for cell segmentation
+# TODO: plot cells in spheroid (save as movie)
+# TODO: save cell numbers in each time pount
+#
+
 
 from datetime import datetime
 
@@ -50,9 +49,7 @@ from fun.noTrack import noTrackRun
 
 opt, var = GUI.run()
 plt.close('all')
-var.separation = 27
-var.obj_thresh_adj = 0.8
-var.obj_thresh_smooth = 50
+
 if opt.test:
     var.radius = 25  # approx radius (must be odd)
     var.minFluroMass = 300 # minimum total fluorescence of a single object
@@ -64,7 +61,13 @@ if opt.test:
 
 startTime = datetime.now()
 # celldf, im_thresh, num_cells = noTrackRun(var, opt
-noTrackRun(var, opt)
+movies = noTrackRun(var, opt)
+
+
+
+
+
+
 print('Total time taken: ', datetime.now() - startTime)
 plt.show(block=True)
 

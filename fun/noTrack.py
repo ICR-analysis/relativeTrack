@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 from scipy import ndimage
-
+import glob
 import tools.detection as dt
 
 
@@ -99,18 +99,22 @@ def cells_in_object(celldf, obj_mask, plot, plot_smooth=False):
     return num_cells
 
 
+
 def noTrackRun(var, opt):
-    print('Running static analysis')
-    allFiles = os.listdir('.')
-    for file in allFiles:
-        if file.endswith("C1.tif"):
-            print('Analysing file: ', file)
-            objCent = dt.obj_cent_single(file, opt.plot)
-            cellsdf = dt.cell_detect(file, var, opt)
-            celldf = cellDist(cellsdf, objCent, opt.plot,
-                              opt.cutFarCells, var.staticSearchRad)
-        
-            im_thresh = dt.obj_seg(file, var, opt)
-            num_cells = cells_in_object(celldf, im_thresh, opt.plot,
-                                        plot_smooth=True)
-    # return celldf, im_thresh, num_cells
+    filenames = glob.glob('*C1.tif')
+    movies = [Movie(file, opt, var) for file in filenames]
+    return movies
+
+
+class Movie:
+    def __init__(self, file, opt, var):
+        print('Analysing file: ', file)
+        self.file = file
+        self.objCent = dt.obj_cent_single(self.file, opt.plot)
+        self.cellsdf = dt.cell_detect(self.file, var, opt)
+        self.celldf = cellDist(self.cellsdf, self.objCent, opt.plot,
+                          opt.cutFarCells, var.staticSearchRad)
+
+        im_thresh = dt.obj_seg(file, var, opt)
+        self.num_cells = cells_in_object(self.celldf, im_thresh, opt.plot,
+                                    plot_smooth=True)
