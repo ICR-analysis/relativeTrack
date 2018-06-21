@@ -113,4 +113,4 @@ def noTrackRun(var, opt):
             im_thresh = dt.obj_seg(file, var, opt)
             num_cells = cells_in_object(celldf, im_thresh, opt.plot,
                                         plot_smooth=True)
-    return celldf, im_thresh, num_cells
+    # return celldf, im_thresh, num_cells

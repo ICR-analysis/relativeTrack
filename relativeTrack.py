@@ -63,7 +63,8 @@ if opt.test:
 
 
 startTime = datetime.now()
-celldf, im_thresh, num_cells = noTrackRun(var, opt)
+# celldf, im_thresh, num_cells = noTrackRun(var, opt
+noTrackRun(var, opt)
 print('Total time taken: ', datetime.now() - startTime)
 plt.show(block=True)
 
