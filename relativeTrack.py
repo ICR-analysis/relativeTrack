@@ -24,7 +24,6 @@ REQUIRES:
 # TODO Save distances from object per image
 # TODO make parallel with ipyparallel?
 # TODO remove objects that dont move
-# TODO option to only analyse n frames
 # TODO speed up object segmentation
 
 # TODO try on different data

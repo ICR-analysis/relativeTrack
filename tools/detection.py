@@ -70,7 +70,7 @@ def obj_seg(file, var, opt):
                                 plotsize=3,  title='Object segmentation',
                                 min_val=None, max_val=im_otsu * 2)
 
-    return im_thresh
+    return im_thresh, im
 
 
 def cell_detect(file, var, opt):
@@ -78,17 +78,17 @@ def cell_detect(file, var, opt):
     # http://soft-matter.github.io/trackpy/v0.3.2/tutorial/walkthrough.html
 
     # load, run object detection and track (then clean up)
-    frames = pims.TiffStack(file, as_grey=True)  # load
+    raw_frames = pims.TiffStack(file, as_grey=True)  # load
 
     # only analyse n frames
     if var.frames_keep is not 0:
-        frames = frames[0:var.frames_keep]
+        raw_frames = raw_frames[0:var.frames_keep]
 
-    f = tp.batch(frames, var.radius, minmass=var.minFluroMass,
+    cellsdf = tp.batch(raw_frames, var.radius, minmass=var.minFluroMass,
                  separation=var.separation, engine='numba',
                  max_iterations=1, characterize=False)  # object detect
 
-    f = f.drop(f[f.mass > var.maxFluroMass].index)  # remove brightest objects
+    cellsdf = cellsdf.drop(cellsdf[cellsdf.mass > var.maxFluroMass].index)  # remove brightest objects
 
     if opt.plot:
         annotate_args = {
@@ -98,14 +98,14 @@ def cell_detect(file, var, opt):
         # Tweak styles
         plt.ion()
         plt.show()
-        FigDims = np.multiply(0.01, frames[0].shape)
+        FigDims = np.multiply(0.01, raw_frames[0].shape)
         mpl.rc('figure',  figsize=(FigDims[1].astype(int),
                                    FigDims[0].astype(int)))
         mpl.rc('image', cmap='gray')
 
         # plot final particles chosen
         plt.figure()
-        tp.annotate(f[f.frame == var.frame_plot], frames[var.frame_plot],
+        tp.annotate(cellsdf[cellsdf.frame == var.frame_plot], raw_frames[var.frame_plot],
                     imshow_style=annotate_args)
         plt.title('Particles included in analysis'
                   '(at t='+str(var.frame_plot)+')')
@@ -114,4 +114,4 @@ def cell_detect(file, var, opt):
         plt.pause(0.001)
         # plt.show(block=False)
 
-    return f
+    return cellsdf, raw_frames

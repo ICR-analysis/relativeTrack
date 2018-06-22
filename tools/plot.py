@@ -5,12 +5,15 @@ Adam Tyson | adam.tyson@icr.ac.uk | 2018-05-10
 """
 import matplotlib.pyplot as plt
 from random import randint
+from matplotlib.widgets import Slider
+
 
 def simpleplot(img, title, plotsize):  # just to tidy up plotting
     plt.figure(figsize=(plotsize, plotsize))
     plt.imshow(img, cmap="Greys_r")
     plt.title(title)
     plt.show(block=False)
+
 
 def rand_plot_compare(im1, im2, num_cols=10, plotsize=3, title=None,
                       min_val=None, max_val=None):
@@ -51,3 +54,43 @@ def plot_1D(data, plotsize, title=None, xlabel=None, ylabel=None):
 
     plt.show(block=False)
 
+
+def scroll_plot(im_in, title_in=None, figsize=(12, 16)):
+    # adapted from:
+    # http://www.math.buffalo.edu/~badzioch/MTH337/PT/
+    # PT-matplotlib_slider/PT-matplotlib_slider.html
+
+    global im
+    im = im_in
+    global title
+    if title_in is None:
+        title = "Image"
+    else:
+        title = title_in
+
+    t_min = 0
+    t_max = len(im)-1
+    t_init = 0
+
+    fig = plt.figure(figsize=figsize)
+
+    main_ax = plt.axes([0.1, 0.2, 0.8, 0.65])
+    slider_ax = plt.axes([0.1, 0.05, 0.8, 0.05])
+    main_ax.set_xticks([])
+    main_ax.set_yticks([])
+
+    plt.axes(main_ax)
+    plt.title(title)
+    main_plot = plt.imshow(im[t_init, :, :])
+
+    t_slider = Slider(slider_ax, 'Timepoint', t_min,t_max, valfmt="%i",
+                      valinit=t_init, valstep=1)
+
+    def update(t):
+        t = int(t)
+        main_plot.set_data(im[t, :, :])
+        fig.canvas.draw_idle()     # redraw the plot
+
+    t_slider.on_changed(update)
+    # plt.show(block=False)
+    plt.show(block=True)

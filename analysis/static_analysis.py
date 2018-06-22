@@ -12,6 +12,7 @@ import glob
 import tools.detection as dt
 import tools.tools as tools
 
+
 def cellDist(celldf, objCent, plot, cutFarCells, searchRad):
     # takes a dataframe with cell positions, and an object position
     # finds distance from object, and plots for each time frame
@@ -113,11 +114,11 @@ class Movie:
         print('Analysing file: ', file)
         self.file = file
         self.objCent = dt.obj_cent_single(self.file, opt.plot)
-        self.cellsdf = dt.cell_detect(self.file, var, opt)
+        self.cellsdf, self.raw_frames = dt.cell_detect(self.file, var, opt)
         self.celldf = cellDist(self.cellsdf, self.objCent, opt.plot,
                           opt.cutFarCells, var.staticSearchRad)
 
-        im_thresh = dt.obj_seg(file, var, opt)
+        im_thresh, self.raw_c0 = dt.obj_seg(file, var, opt)
         self.num_cells_in_obj, self.num_cells_total, self.area_object =\
             cells_in_object(self.celldf, im_thresh, opt.plot, plot_smooth=True)
 
