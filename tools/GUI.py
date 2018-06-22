@@ -103,6 +103,8 @@ def get_opt_radio():
     root = tk.Tk()
     # root.withdraw()
     root.title('Options')
+    root.geometry('250x400')
+
     opt = OptGUI(root)
     return opt
 
@@ -117,7 +119,7 @@ def get_var():
 
             # approx radius (must be odd)
             label_text1 = tk.StringVar()
-            label_text1.set("Object radius")
+            label_text1.set("Estimated cell diameter (pixels)")
             label1 = tk.Label(textvariable=label_text1, height=4)
             label1.grid(row=0)
 
@@ -128,7 +130,7 @@ def get_var():
 #
             # minimum total fluorescence of a single object
             label_text2 = tk.StringVar()
-            label_text2.set("Minimum fluorescence mass")
+            label_text2.set("Minimum cell fluorescence mass")
             label2 = tk.Label(textvariable=label_text2, height=4)
             label2.grid(row=1)
 
@@ -139,7 +141,7 @@ def get_var():
 #
             # maximum total fluorescence of a single object
             label_text3 = tk.StringVar()
-            label_text3.set("Maximum fluorescence mass")
+            label_text3.set("Maximum cell fluorescence mass")
             label3 = tk.Label(textvariable=label_text3, height=4)
             label3.grid(row=2)
 
@@ -150,7 +152,7 @@ def get_var():
 #
 
             label_text4 = tk.StringVar()
-            label_text4.set("Object threshold adjustment")
+            label_text4.set("Large object threshold adjustment")
             label4 = tk.Label(textvariable=label_text4, height=4)
             label4.grid(row=3)
 
@@ -161,7 +163,7 @@ def get_var():
 #
 
             label_text5 = tk.StringVar()
-            label_text5.set("Object thresholding smoothing")
+            label_text5.set("Large object thresholding smoothing")
             label5 = tk.Label(textvariable=label_text5, height=4)
             label5.grid(row=4)
 
@@ -173,7 +175,7 @@ def get_var():
 
             #  Radius to analyse for static analysis
             label_text6 = tk.StringVar()
-            label_text6.set("Analysis radius")
+            label_text6.set("Analysis radius (pixels from object centre)")
             label6 = tk.Label(textvariable=label_text6, height=4)
             label6.grid(row=5)
 
@@ -207,6 +209,8 @@ def get_var():
     root = tk.Tk()
     # root.withdraw()
     root.title('Choose parameters (set to 0 to disable)')
+    root.geometry('400x500')
+
     var = VarGUI(root)
     root.mainloop()
 

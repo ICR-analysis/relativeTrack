@@ -13,8 +13,8 @@ import tools.detection as dt
 import tools.tools as tools
 
 def cellDist(celldf, objCent, plot, cutFarCells, searchRad):
-# takes a dataframe with cell positions, and an object position
-# finds distance from object, and plots for each time frame
+    # takes a dataframe with cell positions, and an object position
+    # finds distance from object, and plots for each time frame
 
     print('Calculating distances from object')
     # calculate distance from object
