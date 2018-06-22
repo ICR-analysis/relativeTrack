@@ -31,10 +31,10 @@ REQUIRES:
 
 # TODO: better viewer for cell segmentation
 # TODO: plot cells in spheroid (save as movie)
-# TODO: save cell numbers in each time pount
-# TODO: check cell counting in object
 # TODO: option to choose which frames to plot
 # TODO: find way of removing small, but bright things
+
+# TODO: segment one central spheroid out of many
 
 from datetime import datetime
 import matplotlib.pyplot as plt
