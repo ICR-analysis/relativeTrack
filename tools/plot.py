@@ -6,7 +6,7 @@ Adam Tyson | adam.tyson@icr.ac.uk | 2018-05-10
 import matplotlib.pyplot as plt
 from random import randint
 from matplotlib.widgets import Slider
-
+import pandas as pd
 
 def simpleplot(img, title, plotsize):  # just to tidy up plotting
     plt.figure(figsize=(plotsize, plotsize))
@@ -94,3 +94,10 @@ def scroll_plot(im_in, title_in=None, figsize=(12, 16)):
     t_slider.on_changed(update)
     # plt.show(block=False)
     plt.show(block=True)
+
+
+# def scroll_overlay(im, points):
+#     sc = movies[0].cellsdf[movies[0].cellsdf['frame'] == 0].plot.scatter(x='x',
+                                                                         y='y',
+                                                                         s=80,
+                                                                         edgecolors='r')
