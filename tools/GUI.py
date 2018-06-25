@@ -37,7 +37,9 @@ def get_opt_radio():
             self.test_opt.set(0)
 
             self.savecsv = False
-            self.plot = False
+            self.plot_inter_static = False
+            self.plot_inter_temporal = False
+            self.plot_final_summary = False
             self.cutFarCells = False
             self.test = False
 
@@ -49,32 +51,37 @@ def get_opt_radio():
             tk.Radiobutton(text="No", variable=self.save_csv_opt,
                            value=0).grid(row=3, sticky=tk.W, column=0)
 
-            tk.Label(text="Plot intermediate results?",  height=2).grid(
+            tk.Label(text="Plotting?",  height=2).grid(
                 row=5, sticky=tk.W, columnspan=3)
-            tk.Radiobutton(text="Yes",
-                           variable=self.plot_opt, value = 1).grid(
+            tk.Radiobutton(text="Intermediate - static",
+                           variable=self.plot_opt, value=1).grid(
                 row=6, sticky=tk.W, columnspan=3)
-            tk.Radiobutton(text="No", variable=self.plot_opt,
-                           value=0).grid(row=7, sticky=tk.W, column=0)
+            tk.Radiobutton(text="Intermediate - temporal",
+                           variable=self.plot_opt, value=2).grid(
+                row=7, sticky=tk.W, column=0)
+            tk.Radiobutton(text="Final - summary", variable=self.plot_opt,
+                           value=3).grid(row=8, sticky=tk.W, column=0)
+            tk.Radiobutton(text="None", variable=self.plot_opt,
+                           value=0).grid(row=9, sticky=tk.W, column=0)
 
             tk.Label(text="Remove distant cells?",  height=2).grid(
-                row=8, sticky=tk.W, columnspan=3)
+                row=10, sticky=tk.W, columnspan=3)
             tk.Radiobutton(text="Yes",
                            variable=self.cut_far_opt, value = 1).grid(
-                row=9, sticky=tk.W, columnspan=3)
+                row=11, sticky=tk.W, columnspan=3)
             tk.Radiobutton(text="No", variable=self.cut_far_opt,
-                           value=0).grid(row=10, sticky=tk.W, column=0)
+                           value=0).grid(row=12, sticky=tk.W, column=0)
 
             tk.Label(text="Testing?",  height=2).grid(
-                row=11, sticky=tk.W, columnspan=3)
+                row=13, sticky=tk.W, columnspan=3)
             tk.Radiobutton(text="Yes",
                            variable=self.test_opt, value = 1).grid(
-                row=12, sticky=tk.W, columnspan=3)
+                row=14, sticky=tk.W, columnspan=3)
             tk.Radiobutton(text="No", variable=self.test_opt,
-                           value=0).grid(row=13, sticky=tk.W, column=0)
+                           value=0).grid(row=15, sticky=tk.W, column=0)
 
             tk.Button(a, text="Proceed",
-                      command=self.quit_loop).grid(row=14, column=2)
+                      command=self.quit_loop).grid(row=16, column=2)
             # a.bind('<Return>', (lambda e, b=name_button: b.invoke()))
             # name_button.bind('<Return>', self.quit_loop)
             root.mainloop()
@@ -85,7 +92,11 @@ def get_opt_radio():
                 self.savecsv = True
 
             if self.plot_opt.get() == 1:
-                self.plot = True
+                self.plot_inter_static = True
+            elif self.plot_opt.get() == 2:
+                self.plot_inter_temporal = True
+            elif self.plot_opt.get() == 3:
+                self.plot_final_summary = True
 
             if self.cut_far_opt.get() == 1:
                 self.cutFarCells = True
@@ -103,7 +114,7 @@ def get_opt_radio():
     root = tk.Tk()
     # root.withdraw()
     root.title('Options')
-    root.geometry('250x400')
+    root.geometry('250x500')
 
     opt = OptGUI(root)
     return opt
@@ -136,7 +147,7 @@ def get_var():
 
             self.minFluroMass = tk.StringVar()
             text2 = tk.Entry(textvariable=self.minFluroMass)
-            text2.insert(tk.END, 800)  # default
+            text2.insert(tk.END, 1300)  # default
             text2.grid(row=1, column=1)
 #
             # maximum total fluorescence of a single object
@@ -195,7 +206,7 @@ def get_var():
             self.radius = int(round(float(self.radius.get())))
             self.minFluroMass = int(round(float(self.minFluroMass.get())))
             self.maxFluroMass = int(round(float(self.maxFluroMass.get())))
-            self.obj_thresh_adj  = float(self.obj_thresh_adj .get())
+            self.obj_thresh_adj = float(self.obj_thresh_adj .get())
             self.obj_thresh_smooth = int(round(float(self.obj_thresh_smooth.get())))
 
             self.staticSearchRad = int(round(float(self.staticSearchRad.get())))

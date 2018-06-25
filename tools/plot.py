@@ -6,7 +6,7 @@ Adam Tyson | adam.tyson@icr.ac.uk | 2018-05-10
 import matplotlib.pyplot as plt
 from random import randint
 from matplotlib.widgets import Slider
-import pandas as pd
+import numpy as np
 
 def simpleplot(img, title, plotsize):  # just to tidy up plotting
     plt.figure(figsize=(plotsize, plotsize))
@@ -92,12 +92,59 @@ def scroll_plot(im_in, title_in=None, figsize=(12, 16)):
         fig.canvas.draw_idle()     # redraw the plot
 
     t_slider.on_changed(update)
+    plt.show(block=False)
+    # plt.show(block=True)
+
+
+def scroll_overlay(im_in, points_in, title=None, figsize=(12, 16),
+                   cell_radius=25):
+    # input
+    # im_in - series of frames from pims
+    # points in - data frame with 'x', 'y' and 'frames'
+    print('Plotting segmentation')
+    global im
+    global points
+    global scatter_plot
+
+    im = im_in
+    points = points_in
+    # im = movies[0].raw_frames
+    # points = movies[0].cellsdf
+
+    if title is None:
+        title = "Image"
+
+    t_min = 0
+    t_max = len(im)-1
+    t_init = 0
+
+    fig = plt.figure(figsize=figsize)
+
+    main_ax = plt.axes([0.1, 0.2, 0.8, 0.65], )
+
+    slider_ax = plt.axes([0.1, 0.05, 0.8, 0.05])
+    main_ax.set_xticks([])
+    main_ax.set_yticks([])
+
+    plt.axes(main_ax)
+    plt.title(title)
+    points_frame = points[points['frame'] == t_init]
+    im_plot = plt.imshow(im[t_init], cmap="Greys_r", vmin=0, vmax=200)
+    scatter_plot = plt.scatter(points_frame['x'] , points_frame['y'],
+                               s=6*cell_radius, edgecolors='r',
+                               facecolors='none')
+    t_slider = Slider(slider_ax, 'Timepoint', t_min, t_max, valfmt="%i",
+                      valinit=t_init, valstep=1)
+
+    def update(t):
+        global scatter_plot
+        t = int(t)
+        im_plot.set_data(im[t])
+        points_frame_upt = points[points['frame'] == t]
+        scatter_plot.set_offsets(np.c_[(points_frame_upt['x'],
+                                        points_frame_upt['y'])])
+        fig.canvas.draw_idle()     # redraw the plot
+
+    t_slider.on_changed(update)
     # plt.show(block=False)
     plt.show(block=True)
-
-
-# def scroll_overlay(im, points):
-#     sc = movies[0].cellsdf[movies[0].cellsdf['frame'] == 0].plot.scatter(x='x',
-                                                                         y='y',
-                                                                         s=80,
-                                                                         edgecolors='r')

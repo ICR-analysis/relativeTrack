@@ -45,11 +45,6 @@ plt.close('all')
 var.frame_plot = 1
 
 if opt.test:
-    var.radius = 25  # approx radius (must be odd)
-    var.minFluroMass = 300 # minimum total fluorescence of a single object
-    var.maxFluroMass = 500000  # maximum total fluorescence of a single object
-    var.staticSearchRad = 500  # Radius to analyse for static analysis
-    var.frame_plot = 1
     var.frames_keep = 5  # set to 0 to run all (needs to be > 3)
 
 
@@ -60,5 +55,7 @@ movies = static_analysis.analysis_run(var, opt)
 static_analysis.all_movies(movies, opt, var, direc)
 
 print('Total time taken: ', datetime.now() - startTime)
+
+static_analysis.plotting(movies, opt, var)
 plt.show(block=True)
 

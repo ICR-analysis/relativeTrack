@@ -11,6 +11,7 @@ from scipy import ndimage
 import glob
 import tools.detection as dt
 import tools.tools as tools
+import tools.plot as plot
 
 
 def cellDist(celldf, objCent, plot, cutFarCells, searchRad):
@@ -113,14 +114,16 @@ class Movie:
     def __init__(self, file, opt, var):
         print('Analysing file: ', file)
         self.file = file
-        self.objCent = dt.obj_cent_single(self.file, opt.plot)
+        self.objCent = dt.obj_cent_single(self.file, opt.plot_inter_static)
         self.cellsdf, self.raw_frames = dt.cell_detect(self.file, var, opt)
-        self.celldf = cellDist(self.cellsdf, self.objCent, opt.plot,
-                          opt.cutFarCells, var.staticSearchRad)
+        self.celldf = cellDist(self.cellsdf, self.objCent,
+                               opt.plot_inter_static, opt.cutFarCells,
+                               var.staticSearchRad)
 
         im_thresh, self.raw_c0 = dt.obj_seg(file, var, opt)
         self.num_cells_in_obj, self.num_cells_total, self.area_object =\
-            cells_in_object(self.celldf, im_thresh, opt.plot, plot_smooth=True)
+            cells_in_object(self.celldf, im_thresh, opt.plot_inter_static,
+                            plot_smooth=True)
 
 
 def all_movies(movies, opt, var, direc):
@@ -129,5 +132,14 @@ def all_movies(movies, opt, var, direc):
                           'num_cells_in_obj',
                           'num_cells_total',
                           'area_object')
+
+def plotting(movies, opt, var):
+    if opt.plot_inter_temporal:
+
+        plot.scroll_overlay(movies[0].raw_frames,
+                            movies[0].cellsdf, 'Cell segmentation',
+                            cell_radius=var.radius)
+
+
 
 

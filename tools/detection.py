@@ -65,7 +65,7 @@ def obj_seg(file, var, opt):
 
     im_thresh = im_smooth > im_otsu
 
-    if opt.plot:
+    if opt.plot_inter_static:
         plots.rand_plot_compare(im[0:max_t], im_thresh, num_cols=5,
                                 plotsize=3,  title='Object segmentation',
                                 min_val=None, max_val=im_otsu * 2)
@@ -88,9 +88,10 @@ def cell_detect(file, var, opt):
                  separation=var.separation, engine='numba',
                  max_iterations=1, characterize=False)  # object detect
 
-    cellsdf = cellsdf.drop(cellsdf[cellsdf.mass > var.maxFluroMass].index)  # remove brightest objects
+    # remove brightest objects
+    cellsdf = cellsdf.drop(cellsdf[cellsdf.mass > var.maxFluroMass].index)
 
-    if opt.plot:
+    if opt.plot_inter_static:
         annotate_args = {
                         "vmin" : 0,
                         "vmax" : 200
@@ -105,7 +106,8 @@ def cell_detect(file, var, opt):
 
         # plot final particles chosen
         plt.figure()
-        tp.annotate(cellsdf[cellsdf.frame == var.frame_plot], raw_frames[var.frame_plot],
+        tp.annotate(cellsdf[cellsdf.frame == var.frame_plot],
+                    raw_frames[var.frame_plot],
                     imshow_style=annotate_args)
         plt.title('Particles included in analysis'
                   '(at t='+str(var.frame_plot)+')')
