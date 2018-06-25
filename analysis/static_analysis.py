@@ -138,7 +138,7 @@ def plotting(movies, opt, var):
 
         plot.scroll_overlay(movies[0].raw_frames,
                             movies[0].cellsdf, 'Cell segmentation',
-                            cell_radius=var.radius)
+                            cell_diameter=var.diameter)
 
 
 

@@ -97,7 +97,7 @@ def scroll_plot(im_in, title_in=None, figsize=(12, 16)):
 
 
 def scroll_overlay(im_in, points_in, title=None, figsize=(12, 16),
-                   cell_radius=25):
+                   cell_diameter=25):
     # input
     # im_in - series of frames from pims
     # points in - data frame with 'x', 'y' and 'frames'
@@ -131,7 +131,7 @@ def scroll_overlay(im_in, points_in, title=None, figsize=(12, 16),
     points_frame = points[points['frame'] == t_init]
     im_plot = plt.imshow(im[t_init], cmap="Greys_r", vmin=0, vmax=200)
     scatter_plot = plt.scatter(points_frame['x'] , points_frame['y'],
-                               s=6*cell_radius, edgecolors='r',
+                               s=6*cell_diameter, edgecolors='r',
                                facecolors='none')
     t_slider = Slider(slider_ax, 'Timepoint', t_min, t_max, valfmt="%i",
                       valinit=t_init, valstep=1)

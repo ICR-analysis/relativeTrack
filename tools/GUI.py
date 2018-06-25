@@ -134,9 +134,9 @@ def get_var():
             label1 = tk.Label(textvariable=label_text1, height=4)
             label1.grid(row=0)
 
-            self.radius = tk.StringVar()
-            text1 = tk.Entry(textvariable=self.radius)
-            text1.insert(tk.END, 25)  # default
+            self.diameter = tk.StringVar()
+            text1 = tk.Entry(textvariable=self.diameter)
+            text1.insert(tk.END, 31)  # default
             text1.grid(row=0, column=1)
 #
             # minimum total fluorescence of a single object
@@ -147,7 +147,7 @@ def get_var():
 
             self.minFluroMass = tk.StringVar()
             text2 = tk.Entry(textvariable=self.minFluroMass)
-            text2.insert(tk.END, 1300)  # default
+            text2.insert(tk.END, 5000)  # default
             text2.grid(row=1, column=1)
 #
             # maximum total fluorescence of a single object
@@ -158,7 +158,7 @@ def get_var():
 
             self.maxFluroMass = tk.StringVar()
             text3 = tk.Entry(textvariable=self.maxFluroMass)
-            text3.insert(tk.END, 50000)  # default
+            text3.insert(tk.END, 100000)  # default
             text3.grid(row=2, column=1)
 #
 
@@ -194,26 +194,38 @@ def get_var():
             text6 = tk.Entry(textvariable=self.staticSearchRad)
             text6.insert(tk.END, 500)  # default
             text6.grid(row=5, column=1)
-            #
+#
+
+            #  Radius to analyse for static analysis
+            label_text7 = tk.StringVar()
+            label_text7.set("Noise removal (cell image smoothing width)")
+            label7 = tk.Label(textvariable=label_text7, height=4)
+            label7.grid(row=6)
+
+            self.noise_smooth = tk.StringVar()
+            text7 = tk.Entry(textvariable=self.noise_smooth)
+            text7.insert(tk.END, 15)  # default
+            text7.grid(row=6, column=1)
+#
 
             # Proceed button
             name_button = tk.Button(text="Proceed", command=self.fetch_vars)
-            name_button.grid(row=6, column=1)
+            name_button.grid(row=7, column=1)
             # bind return to button
             root.bind('<Return>', (lambda e, b=name_button: b.invoke()))
 
         def fetch_vars(self):
-            self.radius = int(round(float(self.radius.get())))
+            self.diameter = int(round(float(self.diameter.get())))
             self.minFluroMass = int(round(float(self.minFluroMass.get())))
             self.maxFluroMass = int(round(float(self.maxFluroMass.get())))
             self.obj_thresh_adj = float(self.obj_thresh_adj .get())
             self.obj_thresh_smooth = int(round(float(self.obj_thresh_smooth.get())))
-
             self.staticSearchRad = int(round(float(self.staticSearchRad.get())))
+            self.noise_smooth = int(round(float(self.noise_smooth.get())))
 
-            # force search radius to be odd (for trackpy)
-            if self.radius % 2 == 0:
-                self.radius = self.radius + 1
+            # force cell diameter to be odd (for trackpy)
+            if self.diameter % 2 == 0:
+                self.diameter = self.diameter + 1
 
             root.destroy()
 
@@ -225,7 +237,7 @@ def get_var():
     var = VarGUI(root)
     root.mainloop()
 
-    var.separation = var.radius
+    var.separation = var.diameter
     return var
 
 

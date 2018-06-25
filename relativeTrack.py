@@ -28,10 +28,8 @@ REQUIRES:
 
 # TODO try on different data
 
-# TODO: better viewer for cell segmentation
 # TODO: plot cells in spheroid (save as movie)
 # TODO: option to choose which frames to plot
-# TODO: find way of removing small, but bright things
 
 # TODO: segment one central spheroid out of many
 

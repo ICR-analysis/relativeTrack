@@ -84,9 +84,11 @@ def cell_detect(file, var, opt):
     if var.frames_keep is not 0:
         raw_frames = raw_frames[0:var.frames_keep]
 
-    cellsdf = tp.batch(raw_frames, var.radius, minmass=var.minFluroMass,
+    # object detect
+    cellsdf = tp.batch(raw_frames, var.diameter, minmass=var.minFluroMass,
                  separation=var.separation, engine='numba',
-                 max_iterations=1, characterize=False)  # object detect
+                 max_iterations=1, characterize=False,
+                       noise_size=var.noise_smooth)
 
     # remove brightest objects
     cellsdf = cellsdf.drop(cellsdf[cellsdf.mass > var.maxFluroMass].index)
