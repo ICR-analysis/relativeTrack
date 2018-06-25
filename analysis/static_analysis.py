@@ -12,7 +12,7 @@ import glob
 import tools.detection as dt
 import tools.tools as tools
 import tools.plot as plot
-
+import pandas as pd
 
 def cellDist(celldf, objCent, plot, cutFarCells, searchRad):
     # takes a dataframe with cell positions, and an object position
@@ -73,7 +73,7 @@ def cells_in_object(celldf, obj_mask, plot, plot_smooth=False):
     num_cells_in_obj = np.zeros(celldf['frame'].max() + 1)
     num_cells_total = np.zeros(celldf['frame'].max() + 1)
     area_object = np.zeros(celldf['frame'].max() + 1)
-
+    cells_in_obj = pd.DataFrame()
 
     for t in range(0, celldf['frame'].max() + 1):
         obj_indices = np.argwhere(obj_mask[t] == True)
@@ -81,10 +81,13 @@ def cells_in_object(celldf, obj_mask, plot, plot_smooth=False):
         df = df.round({'x': 0, 'y': 0})
 
         # get number of cells where x and y vals fall within the object
-        cells_in_obj = df[df['x'].isin(obj_indices[:, 1]) &
-                          df['y'].isin(obj_indices[:, 0])]
+        cells_in_obj_tmp = df[df['x'].isin(obj_indices[:, 1]) &
+                              df['y'].isin(obj_indices[:, 0])]
 
-        num_cells_in_obj[t] = len(cells_in_obj)
+        # keep cells in obj and return
+        cells_in_obj = cells_in_obj.append(cells_in_obj_tmp, ignore_index=True)
+
+        num_cells_in_obj[t] = len(cells_in_obj_tmp)
         num_cells_total[t] = len(df)
         area_object[t] = obj_mask[t].sum()
 
@@ -95,13 +98,55 @@ def cells_in_object(celldf, obj_mask, plot, plot_smooth=False):
         if plot_smooth:
             num_cells = ndimage.filters.gaussian_filter1d(
                 num_cells_in_obj, smooth_sigma)
+        else:
+            num_cells = num_cells_in_obj
 
         ax.plot(x, num_cells)
         ax.set(xlabel='Time', ylabel='Number of cells')
         ax.set_title('Number of cells in object over time')
 
         plt.show(block=False)
-    return num_cells_in_obj, num_cells_total, area_object
+    return num_cells_in_obj, num_cells_total, area_object, cells_in_obj
+
+
+def cells_in_object_tmp(celldf, obj_mask, plot, plot_smooth=False):
+    print('Calculating number of cells in object')
+    num_cells_in_obj = np.zeros(celldf['frame'].max() + 1)
+    num_cells_total = np.zeros(celldf['frame'].max() + 1)
+    area_object = np.zeros(celldf['frame'].max() + 1)
+
+    cells_in_obj = celldf.round({'x': 0, 'y': 0})
+
+    for t in range(0, celldf['frame'].max() + 1):
+        obj_indices = np.argwhere(obj_mask[t] == True)
+        # df = celldf[celldf['frame'] == t]
+        # df = df.round({'x': 0, 'y': 0})
+
+        cells_in_obj = cells_in_obj.drop(
+            cells_in_obj[~cells_in_obj['x'].isin(obj_indices[:, 1]) or
+                         ~cells_in_obj['y'].isin(obj_indices[:, 2])])
+
+
+        num_cells_in_obj[t] = len(cells_in_obj[cells_in_obj['frame'] == t])
+        num_cells_total[t] = len(celldf[celldf['frame'] == t])
+        area_object[t] = obj_mask[t].sum()
+
+    if plot:
+        smooth_sigma = 4
+        fig, ax = plt.subplots()
+        x = np.arange(0, len(num_cells_in_obj))
+        if plot_smooth:
+            num_cells = ndimage.filters.gaussian_filter1d(
+                num_cells_in_obj, smooth_sigma)
+        else:
+            num_cells = num_cells_in_obj
+
+        ax.plot(x, num_cells)
+        ax.set(xlabel='Time', ylabel='Number of cells')
+        ax.set_title('Number of cells in object over time')
+
+        plt.show(block=False)
+    return num_cells_in_obj, num_cells_total, area_object, cells_in_obj
 
 
 def analysis_run(var, opt):
@@ -121,9 +166,15 @@ class Movie:
                                var.staticSearchRad)
 
         im_thresh, self.raw_c0 = dt.obj_seg(file, var, opt)
-        self.num_cells_in_obj, self.num_cells_total, self.area_object =\
+        # self.num_cells_in_obj, self.num_cells_total,\
+        #     self.area_object =\
+        #     cells_in_object(self.celldf, im_thresh, opt.plot_inter_static,
+        #                     plot_smooth=var.cell_obj_plot_smooth)
+
+        self.num_cells_in_obj, self.num_cells_total,\
+            self.area_object, self.cells_in_obj =\
             cells_in_object(self.celldf, im_thresh, opt.plot_inter_static,
-                            plot_smooth=True)
+                            plot_smooth=var.cell_obj_plot_smooth)
 
 
 def all_movies(movies, opt, var, direc):
@@ -139,6 +190,10 @@ def plotting(movies, opt, var):
         plot.scroll_overlay(movies[0].raw_frames,
                             movies[0].cellsdf, 'Cell segmentation',
                             cell_diameter=var.diameter)
+
+        plot.scroll_overlay(movies[0].raw_c0,
+                            movies[0].cells_in_obj, 'Cells in object',
+                            cell_diameter=var.diameter, vmax = 500)
 
 
 

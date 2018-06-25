@@ -28,7 +28,7 @@ def get_opt_radio():
             self.save_csv_opt.set(0)
 
             self.plot_opt = tk.IntVar()
-            self.plot_opt.set(1)
+            self.plot_opt.set(0)
 
             self.cut_far_opt = tk.IntVar()
             self.cut_far_opt.set(1)

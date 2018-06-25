@@ -25,11 +25,8 @@ REQUIRES:
 # TODO make parallel with ipyparallel?
 # TODO remove objects that dont move
 # TODO speed up object segmentation
+# TODO save plots and movies
 
-# TODO try on different data
-
-# TODO: plot cells in spheroid (save as movie)
-# TODO: option to choose which frames to plot
 
 # TODO: segment one central spheroid out of many
 
@@ -41,7 +38,7 @@ import analysis.static_analysis as static_analysis
 opt, var, direc = GUI.run()
 plt.close('all')
 var.frame_plot = 1
-
+var.cell_obj_plot_smooth = False
 if opt.test:
     var.frames_keep = 5  # set to 0 to run all (needs to be > 3)
 
