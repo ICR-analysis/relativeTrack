@@ -80,9 +80,11 @@ def cells_in_object(celldf, obj_mask, plot, plot_smooth=False):
         df = celldf[celldf['frame'] == t]
         df = df.round({'x': 0, 'y': 0})
 
-        # get number of cells where x and y vals fall within the object
-        cells_in_obj_tmp = df[df['x'].isin(obj_indices[:, 1]) &
-                              df['y'].isin(obj_indices[:, 0])]
+        obj_indices_df = pd.DataFrame(obj_indices, columns=['y', 'x'])
+
+        # get common rows - i.e. cells in object
+        cells_in_obj_tmp = pd.merge(df, obj_indices_df, on=['x', 'y'],
+                                    how='inner')
 
         # keep cells in obj and return
         cells_in_obj = cells_in_obj.append(cells_in_obj_tmp, ignore_index=True)
@@ -126,7 +128,6 @@ def cells_in_object_tmp(celldf, obj_mask, plot, plot_smooth=False):
             cells_in_obj[~cells_in_obj['x'].isin(obj_indices[:, 1]) or
                          ~cells_in_obj['y'].isin(obj_indices[:, 2])])
 
-
         num_cells_in_obj[t] = len(cells_in_obj[cells_in_obj['frame'] == t])
         num_cells_total[t] = len(celldf[celldf['frame'] == t])
         area_object[t] = obj_mask[t].sum()
@@ -165,7 +166,7 @@ class Movie:
                                opt.plot_inter_static, opt.cutFarCells,
                                var.staticSearchRad)
 
-        im_thresh, self.raw_c0 = dt.obj_seg(file, var, opt)
+        self.thresh_c0, self.raw_c0 = dt.obj_seg(file, var, opt)
         # self.num_cells_in_obj, self.num_cells_total,\
         #     self.area_object =\
         #     cells_in_object(self.celldf, im_thresh, opt.plot_inter_static,
@@ -173,7 +174,7 @@ class Movie:
 
         self.num_cells_in_obj, self.num_cells_total,\
             self.area_object, self.cells_in_obj =\
-            cells_in_object(self.celldf, im_thresh, opt.plot_inter_static,
+            cells_in_object(self.celldf, self.thresh_c0, opt.plot_inter_static,
                             plot_smooth=var.cell_obj_plot_smooth)
 
 
@@ -184,16 +185,27 @@ def all_movies(movies, opt, var, direc):
                           'num_cells_total',
                           'area_object')
 
-def plotting(movies, opt, var):
+
+def plotting(movies, opt, var, movie_plot=0):
+    if var.frames_keep is 0:
+        max_t = len(movies[movie_plot].raw_frames)
+    else:
+        max_t = var.frames_keep
+
     if opt.plot_inter_temporal:
 
-        plot.scroll_overlay(movies[0].raw_frames,
-                            movies[0].cellsdf, 'Cell segmentation',
+        plot.scroll_overlay(movies[movie_plot].raw_frames,
+                            movies[movie_plot].cellsdf, 'Cell segmentation',
                             cell_diameter=var.diameter)
 
-        plot.scroll_overlay(movies[0].raw_c0,
-                            movies[0].cells_in_obj, 'Cells in object',
-                            cell_diameter=var.diameter, vmax = 500)
+        plot.scroll_overlay(movies[movie_plot].raw_c0[0:max_t],
+                            movies[movie_plot].cells_in_obj, 'Cells in object',
+                            cell_diameter=var.diameter, vmax=500)
+
+        plot.scroll_overlay(movies[movie_plot].thresh_c0[0:max_t],
+                            movies[movie_plot].cells_in_obj,
+                            'Cells in segmented object',
+                            cell_diameter=var.diameter, vmax=1)
 
 
 

@@ -67,7 +67,7 @@ def get_opt_radio():
             tk.Label(text="Remove distant cells?",  height=2).grid(
                 row=10, sticky=tk.W, columnspan=3)
             tk.Radiobutton(text="Yes",
-                           variable=self.cut_far_opt, value = 1).grid(
+                           variable=self.cut_far_opt, value=1).grid(
                 row=11, sticky=tk.W, columnspan=3)
             tk.Radiobutton(text="No", variable=self.cut_far_opt,
                            value=0).grid(row=12, sticky=tk.W, column=0)

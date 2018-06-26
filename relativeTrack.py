@@ -19,6 +19,10 @@ REQUIRES:
     skimage
     seaborn
     pims
+
+N.B.:
+    In saved .csv - total cells is those included in analysis
+    i.e. those in search radius (if selected)
 """
 
 # TODO Save distances from object per image
@@ -27,8 +31,9 @@ REQUIRES:
 # TODO speed up object segmentation
 # TODO save plots and movies
 
-
 # TODO: segment one central spheroid out of many
+
+# TODO: check spheroid size in movie
 
 from datetime import datetime
 import matplotlib.pyplot as plt
@@ -39,6 +44,7 @@ opt, var, direc = GUI.run()
 plt.close('all')
 var.frame_plot = 1
 var.cell_obj_plot_smooth = False
+var.movie_plot = 0
 if opt.test:
     var.frames_keep = 5  # set to 0 to run all (needs to be > 3)
 
@@ -51,6 +57,6 @@ static_analysis.all_movies(movies, opt, var, direc)
 
 print('Total time taken: ', datetime.now() - startTime)
 
-static_analysis.plotting(movies, opt, var)
+static_analysis.plotting(movies, opt, var, movie_plot=var.movie_plot)
 plt.show(block=True)
 
