@@ -15,21 +15,21 @@ import tools.plot as plot
 import pandas as pd
 
 
-def cellDist(celldf, objCent, plot, cutFarCells, searchRad):
+def cell_dist(celldf, obj_cent, plot, cut_far_cells, search_rad):
     # takes a dataframe with cell positions, and an object position
     # finds distance from object, and plots for each time frame
 
     print('Calculating distances from object')
     # calculate distance from object
-    celldf['xdiff'] = abs(celldf['x'] - objCent[1])
-    celldf['ydiff'] = abs(celldf['y'] - objCent[0])
+    celldf['xdiff'] = abs(celldf['x'] - obj_cent[1])
+    celldf['ydiff'] = abs(celldf['y'] - obj_cent[0])
     celldf['sq'] = (celldf['xdiff'] * celldf['xdiff'] +
                     celldf['ydiff'] * celldf['ydiff'])
     celldf['objDist'] = celldf[['sq']].sum(axis=1).pow(1./2)
     
-    if cutFarCells:
+    if cut_far_cells:
         # remove cells too far away
-        celldf = celldf[celldf['objDist'] < searchRad]
+        celldf = celldf[celldf['objDist'] < search_rad]
     
     if plot:
         print('Plotting')
@@ -121,7 +121,7 @@ def cells_in_object_tmp(celldf, obj_mask, plot, plot_smooth=False):
     cells_in_obj = celldf.round({'x': 0, 'y': 0})
 
     for t in range(0, celldf['frame'].max() + 1):
-        obj_indices = np.argwhere(obj_mask[t] == True)
+        obj_indices = np.argwhere(obj_mask[t]==True)
         # df = celldf[celldf['frame'] == t]
         # df = df.round({'x': 0, 'y': 0})
 
@@ -161,52 +161,53 @@ class Movie:
     def __init__(self, file, opt, var):
         print('Analysing file: ', file)
         self.file = file
-        self.objCent = dt.obj_cent_single(self.file, opt.plot_inter_static)
+        self.objCent = dt.obj_cent_single(self.file, opt['plot_inter_static'])
         self.cellsdf, self.raw_frames = dt.cell_detect(self.file, var, opt)
-        self.celldf = cellDist(self.cellsdf, self.objCent,
-                               opt.plot_inter_static, opt.cutFarCells,
-                               var.staticSearchRad)
+        self.celldf = cell_dist(self.cellsdf, self.objCent,
+                                opt['plot_inter_static'], opt['cutFarCells'],
+                                var['staticSearchRad'])
 
         self.thresh_c0, self.raw_c0 = dt.obj_seg(file, var, opt)
-        # self.num_cells_in_obj, self.num_cells_total,\
-        #     self.area_object =\
-        #     cells_in_object(self.celldf, im_thresh, opt.plot_inter_static,
-        #                     plot_smooth=var.cell_obj_plot_smooth)
 
         self.num_cells_in_obj, self.num_cells_total,\
             self.area_object, self.cells_in_obj =\
-            cells_in_object(self.celldf, self.thresh_c0, opt.plot_inter_static,
-                            plot_smooth=var.cell_obj_plot_smooth)
+            cells_in_object(self.celldf, self.thresh_c0, opt['plot_inter_static'],
+                            plot_smooth=var['cell_obj_plot_smooth'])
 
 
 def all_movies(movies, opt, var, direc):
-    if opt.savecsv:
+    if opt['savecsv']:
+        print('Saving results as .csv')
         tools.save_1d_csv(movies, 'file',
                           'num_cells_in_obj',
                           'num_cells_total',
                           'area_object')
 
+    if opt['save_vars']:
+        print('Saving analysis options')
+        tools.options_variables_write(opt, var, direc)
+
 
 def plotting(movies, opt, var, movie_plot=0):
-    if var.frames_keep is 0:
+    if var['frames_keep'] is 0:
         max_t = len(movies[movie_plot].raw_frames)
     else:
-        max_t = var.frames_keep
+        max_t = var['frames_keep']
 
-    if opt.plot_inter_temporal:
-
+    if opt['plot_inter_temporal']:
+        print('Plotting dynamic figures')
         plot.scroll_overlay(movies[movie_plot].raw_frames,
                             movies[movie_plot].cellsdf, 'Cell segmentation',
-                            cell_diameter=var.diameter)
+                            cell_diameter=var['diameter'])
 
         plot.scroll_overlay(movies[movie_plot].raw_c0[0:max_t],
                             movies[movie_plot].cells_in_obj, 'Cells in object',
-                            cell_diameter=var.diameter, vmax=500)
+                            cell_diameter=var['diameter'], vmax=500)
 
         plot.scroll_overlay(movies[movie_plot].thresh_c0[0:max_t],
                             movies[movie_plot].cells_in_obj,
                             'Cells in segmented object',
-                            cell_diameter=var.diameter, vmax=1)
+                            cell_diameter=var['diameter'], vmax=1)
 
 
 

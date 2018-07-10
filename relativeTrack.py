@@ -33,17 +33,19 @@ N.B.:
 
 from datetime import datetime
 import matplotlib.pyplot as plt
-import tools.GUI as GUI
+import gui.gui as gui
 import analysis.static_analysis as static_analysis
+opt, var, direc = gui.gui_run()
 
-opt, var, direc = GUI.run()
 plt.close('all')
-var.frame_plot = 1
-var.cell_obj_plot_smooth = False
-var.movie_plot = 0
-if opt.test:
-    var.frames_keep = 5  # set to 0 to run all (needs to be > 3)
-
+var['frame_plot'] = 1
+var['cell_obj_plot_smooth'] = False
+var['movie_plot'] = 0
+var['separation'] = var['diameter']
+if opt['test']:
+    var['frames_keep'] = 5  # set to 0 to run all (needs to be > 3)
+else:
+    var['frames_keep'] = 0
 
 startTime = datetime.now()
 
@@ -53,6 +55,6 @@ static_analysis.all_movies(movies, opt, var, direc)
 
 print('Total time taken: ', datetime.now() - startTime)
 
-static_analysis.plotting(movies, opt, var, movie_plot=var.movie_plot)
+static_analysis.plotting(movies, opt, var, movie_plot=var['movie_plot'])
 plt.show(block=True)
 
