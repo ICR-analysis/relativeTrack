@@ -8,6 +8,7 @@ from random import randint
 from matplotlib.widgets import Slider
 import numpy as np
 
+
 def simpleplot(img, title, plotsize):  # just to tidy up plotting
     plt.figure(figsize=(plotsize, plotsize))
     plt.imshow(img, cmap="Greys_r")
@@ -106,6 +107,8 @@ def scroll_overlay(im_in, points_in, title=None, figsize=(12, 16),
     global points
     global scatter_plot
 
+    linewidth = 2
+
     im = im_in
     points = points_in
     # im = movies[0].raw_frames
@@ -130,9 +133,9 @@ def scroll_overlay(im_in, points_in, title=None, figsize=(12, 16),
     plt.title(title)
     points_frame = points[points['frame'] == t_init]
     im_plot = plt.imshow(im[t_init], cmap="Greys_r", vmin=vmin, vmax=vmax)
-    scatter_plot = plt.scatter(points_frame['x'] , points_frame['y'],
+    scatter_plot = plt.scatter(points_frame['x'], points_frame['y'],
                                s=6*cell_diameter, edgecolors='r',
-                               facecolors='none')
+                               facecolors='none', linewidths=linewidth)
     t_slider = Slider(slider_ax, 'Timepoint', t_min, t_max, valfmt="%i",
                       valinit=t_init, valstep=1)
 
