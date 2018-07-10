@@ -26,13 +26,10 @@ N.B.:
 """
 
 # TODO Save distances from object per image
-# TODO make parallel with ipyparallel?
-# TODO remove objects that dont move
 # TODO speed up object segmentation
 # TODO save plots and movies
 
 # TODO: segment one central spheroid out of many
-
 # TODO: check spheroid size in movie
 
 from datetime import datetime

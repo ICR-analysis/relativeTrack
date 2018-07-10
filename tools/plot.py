@@ -79,7 +79,7 @@ def scroll_plot(im_in, title_in=None, figsize=(12, 16)):
     main_ax.set_xticks([])
     main_ax.set_yticks([])
 
-    plt.axes(main_ax)
+    plt.sca(main_ax)
     plt.title(title)
     main_plot = plt.imshow(im[t_init, :, :])
 
@@ -126,7 +126,7 @@ def scroll_overlay(im_in, points_in, title=None, figsize=(12, 16),
     main_ax.set_xticks([])
     main_ax.set_yticks([])
 
-    plt.axes(main_ax)
+    plt.sca(main_ax)
     plt.title(title)
     points_frame = points[points['frame'] == t_init]
     im_plot = plt.imshow(im[t_init], cmap="Greys_r", vmin=vmin, vmax=vmax)
