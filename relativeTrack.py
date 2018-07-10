@@ -30,7 +30,6 @@ N.B.:
 # TODO save plots and movies
 
 # TODO: segment one central spheroid out of many
-# TODO: check spheroid size in movie
 
 from datetime import datetime
 import matplotlib.pyplot as plt

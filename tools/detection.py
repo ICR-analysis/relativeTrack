@@ -45,11 +45,20 @@ def obj_cent_single(file, plot):
     return objCent
 
 
-def obj_seg(file, var, opt):
+def bleach_correction_blind(im):
+    bleaching = np.mean(im, (1, 2))
+    bleach_corrected = im/bleaching[:, None, None]
+    return bleach_corrected, bleaching
+
+
+def obj_seg(file, var, opt, bleach_correction=True):
     print('Segmenting object')
 
     objim_file = file.replace("C1.tif", "C0.tif")
     im = skimage.io.imread(objim_file)
+    if bleach_correction:
+        im, bleaching_trace = bleach_correction_blind(im)
+
     im_otsu = var.obj_thresh_adj * skimage.filters.threshold_otsu(im)
 
     if var.frames_keep is 0:
