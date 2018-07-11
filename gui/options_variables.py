@@ -25,7 +25,7 @@ def opt_initialise():
         'Plot final results?',
         'Remove distant cells?',
         'Correct for bleaching?',
-        'Multiple_object_support?',
+        'Multiple object support?',
         'Testing?',
     ]
 
