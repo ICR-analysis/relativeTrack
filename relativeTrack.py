@@ -26,12 +26,7 @@ N.B.:
 """
 
 # TODO Save distances from object per image
-# TODO speed up object segmentation
 # TODO save plots and movies
-
-# TODO: segment one central spheroid out of many
-# todo: change the object centre to use the centre of the segmented object not
-# an intensity weight
 
 from datetime import datetime
 import matplotlib.pyplot as plt
@@ -43,8 +38,7 @@ plt.close('all')
 var['frame_plot'] = 1
 var['cell_obj_plot_smooth'] = False
 var['movie_plot'] = 0
-var['separation'] = var['diameter'] # separation of cells
-# var['crop_ratio_mult_obj'] = 0.6  # to get "centre" of image for obj detection
+var['separation'] = var['diameter']  # separation of cells
 if opt['test']:
     var['frames_keep'] = 5  # set to 0 to run all (needs to be > 3)
 else:

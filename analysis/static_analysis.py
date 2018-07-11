@@ -132,7 +132,7 @@ class Movie:
             crop_ratio=var['crop_ratio_mult_obj'],
             plot=opt['plot_inter_static'])
 
-        self.objCent = dt.obj_cent(self.thresh_c0, opt['plot_inter_static'])
+        self.objCent = dt.obj_cent(self.thresh_c0, False)
         self.cellsdf, self.raw_frames = dt.cell_detect(self.file, var, opt)
         self.celldf = cell_dist(self.cellsdf, self.objCent,
                                 opt['plot_inter_static'], opt['cutFarCells'],
