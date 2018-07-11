@@ -151,3 +151,13 @@ def scroll_overlay(im_in, points_in, title=None, figsize=(12, 16),
     t_slider.on_changed(update)
     # plt.show(block=False)
     plt.show(block=True)
+
+
+def hist(x, plot_style=None):
+    if plot_style is not None:
+        plt.style.use(plot_style)
+    x = np.ndarray.flatten(x)
+
+    plt.hist(x)
+    plt.title("Histogram")
+    plt.show()

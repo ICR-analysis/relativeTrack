@@ -112,45 +112,6 @@ def cells_in_object(celldf, obj_mask, plot, plot_smooth=False):
     return num_cells_in_obj, num_cells_total, area_object, cells_in_obj
 
 
-def cells_in_object_tmp(celldf, obj_mask, plot, plot_smooth=False):
-    print('Calculating number of cells in object')
-    num_cells_in_obj = np.zeros(celldf['frame'].max() + 1)
-    num_cells_total = np.zeros(celldf['frame'].max() + 1)
-    area_object = np.zeros(celldf['frame'].max() + 1)
-
-    cells_in_obj = celldf.round({'x': 0, 'y': 0})
-
-    for t in range(0, celldf['frame'].max() + 1):
-        obj_indices = np.argwhere(obj_mask[t]==True)
-        # df = celldf[celldf['frame'] == t]
-        # df = df.round({'x': 0, 'y': 0})
-
-        cells_in_obj = cells_in_obj.drop(
-            cells_in_obj[~cells_in_obj['x'].isin(obj_indices[:, 1]) or
-                         ~cells_in_obj['y'].isin(obj_indices[:, 2])])
-
-        num_cells_in_obj[t] = len(cells_in_obj[cells_in_obj['frame'] == t])
-        num_cells_total[t] = len(celldf[celldf['frame'] == t])
-        area_object[t] = obj_mask[t].sum()
-
-    if plot:
-        smooth_sigma = 4
-        fig, ax = plt.subplots()
-        x = np.arange(0, len(num_cells_in_obj))
-        if plot_smooth:
-            num_cells = ndimage.filters.gaussian_filter1d(
-                num_cells_in_obj, smooth_sigma)
-        else:
-            num_cells = num_cells_in_obj
-
-        ax.plot(x, num_cells)
-        ax.set(xlabel='Time', ylabel='Number of cells')
-        ax.set_title('Number of cells in object over time')
-
-        plt.show(block=False)
-    return num_cells_in_obj, num_cells_total, area_object, cells_in_obj
-
-
 def analysis_run(var, opt):
     filenames = glob.glob('*C1.tif')
     movies = [Movie(file, opt, var) for file in filenames]
@@ -161,13 +122,21 @@ class Movie:
     def __init__(self, file, opt, var):
         print('Analysing file: ', file)
         self.file = file
-        self.objCent = dt.obj_cent_single(self.file, opt['plot_inter_static'])
+        self.thresh_c0, self.raw_c0 = dt.obj_seg(
+            self.file.replace("C1.tif", "C0.tif"),
+            thresh_adj=var['obj_thresh_adj'],
+            bleach_correction=opt['bleach_correction'],
+            frames_keep=var['frames_keep'],
+            smooth_sigma=var['obj_thresh_smooth'],
+            mult_obj=opt['mult_obj_support'],
+            crop_ratio=var['crop_ratio_mult_obj'],
+            plot=opt['plot_inter_static'])
+
+        self.objCent = dt.obj_cent(self.thresh_c0, opt['plot_inter_static'])
         self.cellsdf, self.raw_frames = dt.cell_detect(self.file, var, opt)
         self.celldf = cell_dist(self.cellsdf, self.objCent,
                                 opt['plot_inter_static'], opt['cutFarCells'],
                                 var['staticSearchRad'])
-
-        self.thresh_c0, self.raw_c0 = dt.obj_seg(file, var, opt)
 
         self.num_cells_in_obj, self.num_cells_total,\
             self.area_object, self.cells_in_obj =\

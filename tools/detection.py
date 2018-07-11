@@ -13,33 +13,30 @@ import skimage.measure
 import trackpy as tp
 from scipy import ndimage
 import tools.plot as plots
+from scipy import stats
 
 
-def obj_cent_single(file, plot):
+def obj_cent(binary_im, plot=False):
     print('Finding object centre')
-    # takes the C1 file, and loads the C0 file
-    # finds the intensity weighted centroid
-
-    objim_file = file.replace("C1.tif", "C0.tif")
-    obj_im = skimage.io.imread(objim_file)
-    sum_proj = np.sum(obj_im, 0)
-    sum_proj = np.square(sum_proj)  # weight intensity more than distance
+    # takes a binary image of an object, and returns its centre
+    # assumed doesnt move (i.e. finds a single centre)
+    max_proj = np.max(binary_im, 0)
     agnostic_mask = np.ones(
-            sum_proj.shape).astype(int)  # regionprops needs a 'mask'
-    obj_cent = skimage.measure.regionprops(
-            agnostic_mask, sum_proj)[0]['weighted_centroid']
+            max_proj.shape).astype(int)  # regionprops needs a 'mask'
+    obj_centre = skimage.measure.regionprops(
+            agnostic_mask, max_proj)[0]['centroid']
 
     if plot:
         print('Plotting')
         fig, ax = plt.subplots(1)
         ax.set_aspect('equal')
-        ax.imshow(sum_proj)
-        circ = mpl.patches.Circle((obj_cent[1], obj_cent[0]), 50)
+        ax.imshow(max_proj)
+        circ = mpl.patches.Circle((obj_centre[1], obj_centre[0]), 50)
         ax.add_patch(circ)
         ax.set_title('Object centre')
         plt.show(block=False)
 
-    return obj_cent
+    return obj_centre
 
 
 def bleach_correction_blind(im):
@@ -48,30 +45,53 @@ def bleach_correction_blind(im):
     return bleach_corrected, bleaching
 
 
-def obj_seg(file, var, opt, bleach_correction=True):
+def obj_seg(file, thresh_adj=1, bleach_correction=True,
+            frames_keep=0, smooth_sigma=40, plot=False,
+            mult_obj=False, crop_ratio=0):
     print('Segmenting object')
 
-    objim_file = file.replace("C1.tif", "C0.tif")
-    im = skimage.io.imread(objim_file)
+    # objim_file = file.replace("C1.tif", "C0.tif")
+    im = skimage.io.imread(file)
     if bleach_correction:
         im, bleaching_trace = bleach_correction_blind(im)
 
-    im_otsu = var['obj_thresh_adj'] * skimage.filters.threshold_otsu(im)
+    im_otsu = thresh_adj * skimage.filters.threshold_otsu(im)
 
-    if var['frames_keep'] is 0:
+    if frames_keep is 0:
         max_t = len(im)
     else:
-        max_t = var['frames_keep']
+        max_t = frames_keep
 
     im_smooth = np.zeros((max_t, im.shape[1], im.shape[2]))
 
     for t in range(0, max_t):
         im_smooth[t] = ndimage.filters.gaussian_filter(
-            im[t], (var['obj_thresh_smooth'], var['obj_thresh_smooth']))
+            im[t], (smooth_sigma, smooth_sigma))
 
     im_thresh = im_smooth > im_otsu
 
-    if opt['plot_inter_static']:
+    # find single, largest object (maybe only in centre)
+    if mult_obj:
+        if crop_ratio is not 0:
+            start_y = int(round(im.shape[1]*((1-crop_ratio)/2)))
+            end_y = int(round(im.shape[1] * (0.5+(crop_ratio/2))))
+            start_x = int(round(im.shape[2]*((1-crop_ratio)/2)))
+            end_x = int(round(im.shape[2] * (0.5+(crop_ratio/2))))
+
+            mask = np.full(im_thresh.shape, False, dtype=bool)
+            mask[:, start_y:end_y, start_x:end_x] = True
+            im_thresh[~mask] = False
+
+        im_thresh_single = np.full(im_thresh.shape, False, dtype=bool)
+        for t in range(0, max_t):
+            label_image = skimage.measure.label(im_thresh[t])
+            # mode returns the smallest if >1 value
+            mode = stats.mode(label_image[label_image > 0], axis=None)
+            im_thresh_single[t] = label_image == mode[0]
+
+        im_thresh = im_thresh_single
+
+    if plot:
         plots.rand_plot_compare(im[0:max_t], im_thresh, num_cols=5,
                                 plotsize=3,  title='Object segmentation',
                                 min_val=None, max_val=im_otsu * 2)

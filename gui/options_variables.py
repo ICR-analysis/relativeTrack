@@ -4,25 +4,6 @@ Adam Tyson | adam.tyson@icr.ac.uk | 2018-07-10
 """
 
 
-def analysis_initialise():
-    analysis_names = [
-        'marker_analysis',
-        'pearson_analysis',
-    ]
-
-    analysis_prompts =[
-        'Perform marker based analysis?',
-        'Perform pearson correlation analysis?',
-    ]
-
-    analysis_defaults = [
-        True,
-        False,
-    ]
-
-    return analysis_names, analysis_prompts, analysis_defaults
-
-
 def opt_initialise():
     opt_names = [
         'savecsv',
@@ -31,6 +12,8 @@ def opt_initialise():
         'plot_inter_static',
         'plot_final_summary',
         'cutFarCells',
+        'bleach_correction',
+        'mult_obj_support',
         'test',
     ]
 
@@ -41,6 +24,8 @@ def opt_initialise():
         'Plot intermediate results (static)?',
         'Plot final results?',
         'Remove distant cells?',
+        'Correct for bleaching?',
+        'Multiple_object_support?',
         'Testing?',
     ]
 
@@ -51,6 +36,8 @@ def opt_initialise():
         False,
         False,
         True,
+        True,
+        False,
         False,
     ]
 
@@ -66,6 +53,7 @@ def var_initialise():
         'obj_thresh_smooth',
         'staticSearchRad',
         'noise_smooth',
+        'crop_ratio_mult_obj',
     ]
 
     var_prompts = [
@@ -76,16 +64,18 @@ def var_initialise():
         'Large object thresholding smoothing',
         'Analysis radius (pixels from object centre)',
         'Noise removal (cell image smoothing width)',
+        'Fraction of centre for multiple object support (0 to disable)',
                     ]
 
     var_defaults = [
         31,
         5000,
         100000,
-        0.6,
+        0.9,
         40,
         500,
         15,
+        0.6,
     ]
 
     return var_names, var_prompts, var_defaults
