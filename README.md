@@ -1,5 +1,5 @@
 ## relativeTrack
-Work in progress
+Work in progress.
 ##### Adam Tyson | 2018-07-11 | adam.tyson@icr.ac.uk
 
 #### Measures (bulk, i.e. not individual) cell motion with respect to a central, large object. Despite the name, it no longer tracks anything, but trackpy does a great job at this, if needed.
