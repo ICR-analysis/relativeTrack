@@ -31,7 +31,6 @@ Work in progress
 1. Export 2D maximum projection timelapses as multipage tiff (default if <4GB in Slidebook), one image per channel. All images can be saved into the same directory.
     * The central object image must end  **C0.tif** and cell image must end **C1.tif** (can obviously be changed)
 	
-	
 2. Confirm or change options (the defaults can be changed in `relativeTrack.gui.options_variables`:
 	* **Save results as .csv?** - save all generated parameters to a csv file. One column per timelapse, one file per parameter
 	* **Save analysis options as .txt?** - saves all chosen options and parameters to a .txt file to be reused
