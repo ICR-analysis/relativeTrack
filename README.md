@@ -60,7 +60,7 @@ The script will then run through all images corresponding to a string (e.g. '*C0
 ## Outputs:
 * **analysis_options.txt** - all options and variables defined above
 * **area_object.csv** - total area of object over time
-* **num_cells_total.csv** - total number of cells detected in FOV over time
+* **num_cells_total.csv** - total number of cells included in analysis over time
 * **num_cells_in_obj.csv** - total number of cells in object over time
 
 ### TODO:
